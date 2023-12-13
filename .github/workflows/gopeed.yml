@@ -59,6 +59,8 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/jrsoftware/issrc/raw/main/Files/Languages/Unofficial/ChineseSimplified.isl" -OutFile "ChineseSimplified.isl"
           mv ChineseSimplified.isl "C:\Program Files (x86)\Inno Setup 6\Languages\"
 
+          Remove-Item -Path "gopeed\pkg\rest\api.go"
+          Remove-Item -Path "gopeed\pkg\rest\server.go"
           mv "build_gopeed\gopeed\pkg\rest\api.go" "gopeed\pkg\rest\api.go"
           mv "build_gopeed\gopeed\pkg\rest\server.go" "gopeed\pkg\rest\server.go"
           cd gopeed
