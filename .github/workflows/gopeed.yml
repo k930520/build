@@ -43,7 +43,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Checkout alist repo
+      - name: Checkout gopeed repo
         uses: actions/checkout@v3
         with:
           repository: GopeedLab/gopeed
