@@ -119,6 +119,7 @@ MakeRelease() {
 if [ "$1" = "release" ]; then
   FetchWebRelease
   PreBuildRelease
+  BuildReleaseMusl
   BuildReleaseLinuxMuslArm
   MakeRelease
 else
