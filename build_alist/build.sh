@@ -112,8 +112,8 @@ MakeRelease() {
 	upx -9 alist.exe
     zip compress/"$i".zip alist.exe
   done
-#  cp -rf ../../alist-web/dist .
-#  tar -czvf compress/dist.tar.gz dist/*
+  cp -rf ../../alist-web/dist .
+  tar -czvf compress/dist.tar.gz dist/*
   cd ../..
 }
 
