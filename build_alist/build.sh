@@ -23,7 +23,7 @@ ldflags="\
 
 FetchWebRelease() {
   cd alist-web
-  sed -i '/Aliyundrive(Open)/d' src/pages/home/previews/index.ts
+#  sed -i '/Aliyundrive(Open)/d' src/pages/home/previews/index.ts
   curl -L -o zh-CN.zip https://crowdin.com/backend/download/project/alist/zh-CN.zip
   unzip zh-CN.zip
 #  sed -i '236d' src/lang/zh-CN/drivers.json
