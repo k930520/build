@@ -42,8 +42,8 @@ PreBuildRelease() {
   mkdir -p "build"
   cd alist
 #  sed -i 's/SetRetryCount(3)/SetRetryCount(1)/' drivers/base/client.go
-  rm -f go.*
-  go mod init github.com/alist-org/alist/v3
+#  rm -f go.*
+#  go mod init github.com/alist-org/alist/v3
   go mod tidy
 }
 
