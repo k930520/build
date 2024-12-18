@@ -27,7 +27,7 @@ BuildReleaseLinuxMuslArm() {
     export GOARCH=arm
     export CC=${cgo_cc}
     export GOARM=${arm}
-	export CGO_ENABLED=1
+    export CGO_ENABLED=1
     go build -o ../build/$appName-$os_arch .
   done
 }
