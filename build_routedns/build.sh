@@ -27,7 +27,7 @@ BuildReleaseLinuxMuslArm() {
     export GOARCH=arm
     export CC=${cgo_cc}
     export GOARM=${arm}
-    go build -o ../build/$appName-$os_arch .
+    go build -o ../build/$appName-$os_arch ./cmd/routedns
   done
 }
 
