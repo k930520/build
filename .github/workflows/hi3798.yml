@@ -1,0 +1,61 @@
+name: hi3798
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete tag and release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: hi3798
+          github_token: ${{ secrets.MY_TOKEN }}
+          delete_release: true
+          repo: k930520/build
+
+  build-hi3798:
+    if: ${{ always() }}
+    needs: delete-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Checkout SDK repo
+        uses: actions/checkout@v4
+        with:
+          repository: JasonFreeLab/HiSTBLinuxV100R005C00SPC060
+          ref: main
+          path: SDK
+          persist-credentials: false
+          fetch-depth: 0
+          
+      - name: Build
+        env:
+          github_token: ${{ secrets.MY_TOKEN }}
+        run: |
+          bash build_hi3798/build.sh
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          tag_name: hi3798
+          files: compress/*
+          prerelease: false
+          
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          repository: k930520/build
+          status: completed
+          

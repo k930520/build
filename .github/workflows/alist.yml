@@ -1,0 +1,92 @@
+name: alist
+
+on:
+  schedule:
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+
+jobs:
+  delete-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete tag and release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: alist
+          github_token: ${{ secrets.MY_TOKEN }}
+          delete_release: true
+          repo: k930520/build
+
+  build-alist:
+    if: ${{ always() }}
+    needs: delete-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 9
+          run_install: false
+          
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Checkout alist repo
+        uses: actions/checkout@v4
+        with:
+          repository: alist-org/alist
+          ref: main
+          path: alist
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Checkout alist-web repo
+        uses: actions/checkout@v4
+        with:
+          repository: alist-org/alist-web
+          ref: main
+          path: alist-web
+          persist-credentials: false
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt install upx
+      - name: Build
+        env:
+          github_token: ${{ secrets.MY_TOKEN }}
+        run: |
+          bash build_alist/build.sh release
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          tag_name: alist
+          files: build/compress/*
+          prerelease: false
+          
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          repository: k930520/build
+          status: completed
+          
