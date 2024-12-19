@@ -1,0 +1,70 @@
+name: routedns
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete tag and release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: routedns
+          github_token: ${{ secrets.MY_TOKEN }}
+          delete_release: true
+          repo: k930520/build
+
+  build-routedns:
+    if: ${{ always() }}
+    needs: delete-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Checkout alist repo
+        uses: actions/checkout@v4
+        with:
+          repository: folbricht/routedns
+          ref: master
+          path: routedns
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt install upx
+          
+      - name: Build
+        env:
+          github_token: ${{ secrets.MY_TOKEN }}
+        run: |
+          bash build_routedns/build.sh release
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          tag_name: routedns
+          files: build/compress/*
+          prerelease: false
+          
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          repository: k930520/build
+          status: completed
+          
