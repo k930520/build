@@ -36,15 +36,18 @@ jobs:
       - name: Checkout SDK repo
         uses: actions/checkout@v4
         with:
-          repository: 07bug/HiSTBLinuxV100R005C00SPC060
-          ref: master
+          repository: JasonFreeLab/HiSTBLinuxV100R005C00SPC060
+          ref: main
           path: SDK
           persist-credentials: false
           fetch-depth: 0
 
       - name: Initialization environment
         run: |
-          cp SDK/bootargs_input.txt SDK/configs/hi3798mv100/prebuilts/emmc_bootargs.txt
+          #cp SDK/bootargs_input.txt SDK/configs/hi3798mv100/prebuilts/emmc_bootargs.txt
+          curl -L -o armv7l-linux-musleabihf-cross.tgz https://musl.cc/armv7l-linux-musleabihf-cross.tgz
+          tar xf armv7l-linux-musleabihf-cross.tgz
+          mv armv7l-linux-musleabihf-cross SDK/tools/linux/toolchains
           sudo -E apt-get -y update
           sudo -E apt-get -y install gcc make gettext bison flex bc zlib1g-dev libncurses5-dev lzma
 
