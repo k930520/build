@@ -1,9 +1,6 @@
-name: Build Debian Rootfs
+name: Build Rootfs
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
