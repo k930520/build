@@ -44,6 +44,7 @@ jobs:
 
       - name: Initialization environment
         run: |
+          cp SDK/bootargs_input.txt configs/hi3798mv100/prebuilts/emmc_bootargs.txt
           sudo -E apt-get -y update
           sudo -E apt-get -y install gcc make gettext bison flex bc zlib1g-dev libncurses5-dev lzma
 
