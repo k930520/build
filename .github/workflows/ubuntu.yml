@@ -16,7 +16,7 @@ jobs:
       - name: Create ubuntu noble Rootfs
         run: |
           mkdir -p ${{ github.workspace }}/ubuntu-rootfs
-          sudo debootstrap --variant=minbase --arch=armhf jammy ${{ github.workspace }}/ubuntu-rootfs  http://archive.ubuntu.com/ubuntu/
+          sudo debootstrap --variant=minbase --arch=armhf jammy ${{ github.workspace }}/ubuntu-rootfs  https://cdimage.ubuntu.com/ubuntu-base/
 
       - name: Archive rootfs
         run: |
