@@ -20,11 +20,22 @@ jobs:
     needs: delete-release
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 0
+          
       - name: Initialization environment
         run: |
+          sudo apt-get update
+          sudo apt-get install qemu-user-static
           curl -L -o ubuntu-base-22.04.5-base-armhf.tar.gz https://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.5-base-armhf.tar.gz
-          mkdir ubuntu
-          tar -xpf ubuntu-base-22.04.5-base-armhf.tar.gz -C ubuntu/
+          mkdir ubuntu-rootfs
+          tar -xpf ubuntu-base-22.04.5-base-armhf.tar.gz -C ubuntu-rootfs/
+          chmod a+x build_hi3798/ch-mount.sh
+          chmod a+x build_hi3798/mkrootfs.sh
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
