@@ -45,7 +45,7 @@ jobs:
       - name: Initialization environment
         run: |
           sudo -E apt-get -y update
-          sudo -E apt-get -y install gcc make gettext bison flex bc zlib1g-dev libncurses5-dev lzma git
+          sudo -E apt-get -y install gcc make gettext bison flex bc zlib1g-dev libncurses5-dev lzma
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
