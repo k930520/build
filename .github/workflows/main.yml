@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 07bug/HiSTBLinuxV100R005C00SPC060
-          ref: main
+          ref: master
           path: SDK
           persist-credentials: false
           fetch-depth: 0
