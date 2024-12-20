@@ -36,7 +36,7 @@ jobs:
       - name: Checkout SDK repo
         uses: actions/checkout@v4
         with:
-          repository: JasonFreeLab/HiSTBLinuxV100R005C00SPC060
+          repository: 07bug/HiSTBLinuxV100R005C00SPC060
           ref: main
           path: SDK
           persist-credentials: false
