@@ -32,7 +32,7 @@ shift $((OPTIND-1))
 dir="$VERSION"
 COMPONENTS="main"
 VARIANT="minbase"
-args=( -d "$dir" debootstrap --variant="$VARIANT" --components="$COMPONENTS" --include="$INCLUDE" --arch="$ARCH" "$SUITE" )
+args=( -d "$dir" debootstrap --variant="$VARIANT" --components="$COMPONENTS" --arch="$ARCH" "$SUITE" )
 
 mkdir -p mkimage $dir
 curl https://raw.githubusercontent.com/moby/moby/6f78b438b88511732ba4ac7c7c9097d148ae3568/contrib/mkimage.sh > mkimage.sh
