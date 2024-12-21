@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Build
         run: |
-          bash tmate.sh
+          sudo apt-get update && sudo apt-get install -y git
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
