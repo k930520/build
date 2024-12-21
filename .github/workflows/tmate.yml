@@ -10,7 +10,7 @@ jobs:
       - name: Delete tag and release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
-          tag_name: tmate
+          tag_name: ubuntu
           github_token: ${{ secrets.MY_TOKEN }}
           delete_release: true
           repo: k930520/build
