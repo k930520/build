@@ -1,16 +1,16 @@
-name: main
+name: tmate
 
 on:
   workflow_dispatch:
   
 jobs:
   delete-release:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Delete tag and release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
-          tag_name: hi3798
+          tag_name: tmate
           github_token: ${{ secrets.MY_TOKEN }}
           delete_release: true
           repo: k930520/build
@@ -18,24 +18,11 @@ jobs:
   build-hi3798:
     if: ${{ always() }}
     needs: delete-release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          persist-credentials: false
-          fetch-depth: 0
-          
-      - name: Initialization environment
+      - name: Build
         run: |
-          sudo apt-get update
-          sudo apt-get install qemu-user-static
-          curl -L -o ubuntu-base-22.04.5-base-armhf.tar.gz https://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.5-base-armhf.tar.gz
-          mkdir ubuntu-rootfs
-          tar -xpf ubuntu-base-22.04.5-base-armhf.tar.gz -C ubuntu-rootfs/
-          chmod a+x build_hi3798/ch-mount.sh
-          chmod a+x build_hi3798/mkrootfs.sh
+          bash tmate.sh
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -46,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
-          tag_name: hi3798
+          tag_name: tmate
           files: compress/*
           prerelease: false
           
