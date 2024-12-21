@@ -33,6 +33,7 @@ jobs:
         run: |
           sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu focal main universe'
           sudo apt-get update && sudo apt-get install -y qemu-user-static debootstrap
+          chmod +x ./update.sh
           ./update.sh -a ${{ matrix.ARCH }} -v ${{ matrix.VERSION }} -q ${{ matrix.QEMU_ARCH }} -u ${{ matrix.QEMU_VER }} -d ${{ matrix.DOCKER_REPO }} -s ${{ matrix.SUITE }} -i ${{ matrix.INCLUDE }} -o ${{ matrix.UNAME_ARCH }}
       - name: Release
         uses: softprops/action-gh-release@v2
