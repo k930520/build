@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Build
         run: |
-          sudo apt-get update && sudo apt-get install -y qemu-user-static debootstrap git
+          sudo apt-get update && sudo apt-get install -y qemu-user-static git
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -20,7 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
-          tag_name: tmate_${ GITHUB_RUN_ID }
+          tag_name: tmate.${{ github.run_number }}
           files: tmate/*
           prerelease: false
           
