@@ -40,6 +40,8 @@ jobs:
         env:
           github_token: ${{ secrets.MY_TOKEN }}
         run: |
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install gcc make gettext bison flex bc zlib1g-dev libncurses5-dev lzma
           bash build_hi3798/build.sh
           
       - name: Release
