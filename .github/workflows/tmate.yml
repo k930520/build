@@ -4,20 +4,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  delete-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete tag and release
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          tag_name: ubuntu
-          github_token: ${{ secrets.MY_TOKEN }}
-          delete_release: true
-          repo: k930520/build
-
   build-tmate:
-    if: ${{ always() }}
-    needs: delete-release
     runs-on: ubuntu-latest
     steps:
       - name: Build
@@ -33,7 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
-          tag_name: tmate
+          tag_name: tmate_${ GITHUB_RUN_ID }
           files: tmate/*
           prerelease: false
           
