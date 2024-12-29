@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Build
         run: |
-          sudo apt-get update && sudo apt-get install -y git
+          sudo apt-get update && sudo apt-get install -y qemu-user-static debootstrap git
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
