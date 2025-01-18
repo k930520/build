@@ -34,7 +34,8 @@ jobs:
           git clone https://github.com/dunglas/frankenphp
           cd frankenphp
           wget https://raw.githubusercontent.com/k930520/build/refs/heads/main/build.sh
-          ./build.sh 
+          chmod +x ./build.sh
+          sudo ./build.sh 
             
       - name: Release caddy
         uses: softprops/action-gh-release@v2
