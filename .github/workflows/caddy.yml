@@ -45,12 +45,4 @@ jobs:
           tag_name: caddy
           files: frankenphp/dist/*
           prerelease: false
-          
-      - name: Delete workflow runs
-        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-        with:
-          repository: k930520/build
-          status: completed
       
