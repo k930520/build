@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install upx make
+          sudo apt install upx gcc sqlite3 
           
       - name: Build
         env:
