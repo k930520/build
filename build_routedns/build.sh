@@ -36,6 +36,7 @@ BuildReleaseLinuxMuslArm() {
         --enable-zts \
         --disable-zend-signals \
         --enable-zend-max-execution-timers
+    ls -l | grep *akefile
     make -j"$(getconf _NPROCESSORS_ONLN)"
     sudo make install
     cd ../
