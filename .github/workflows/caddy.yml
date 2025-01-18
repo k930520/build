@@ -30,15 +30,11 @@ jobs:
           sudo apt install upx git
 
       - name: Build caddy
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: armv7
-          distro: ubuntu_latest
-          run: |
-            apt install git
-            git clone https://github.com/dunglas/frankenphp
-            cd frankenphp
-            ./build-static.sh 
+        run: |
+          git clone https://github.com/dunglas/frankenphp
+          cd frankenphp
+          wget https://raw.githubusercontent.com/k930520/build/refs/heads/main/build.sh
+          ./build.sh 
             
       - name: Release caddy
         uses: softprops/action-gh-release@v2
