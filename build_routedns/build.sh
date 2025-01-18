@@ -28,6 +28,8 @@ BuildReleaseLinuxMuslArm() {
     export CC=${cgo_cc}
     export GOARM=${arm}
     go build -o ../build/$appName-$os_arch .
+    go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+    xcaddy build --with github.com/dunglas/frankenphp
   done
 }
 
@@ -39,6 +41,8 @@ MakeRelease() {
 	upx -9 routedns
     tar -czvf compress/"$i".tar.gz routedns
   done
+  upx -9 caddy
+  tar -czvf compress/caddy.tar.gz caddy
   cd ../
 }
 
