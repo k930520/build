@@ -28,8 +28,9 @@ BuildReleaseLinuxMuslArm() {
     export CC=${cgo_cc}
     export GOARM=${arm}
     go build -o ../build/$appName-$os_arch .
+    export GOBIN=/opt/go
     go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-    GOBIN/xcaddy build --with github.com/dunglas/frankenphp
+    /opt/go/xcaddy build --with github.com/dunglas/frankenphp
   done
 }
 
