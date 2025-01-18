@@ -18,7 +18,7 @@ jobs:
   build-caddy:
     if: ${{ always() }}
     needs: delete-release
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ARM]
     steps:
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -35,7 +35,7 @@ jobs:
           cd frankenphp
           wget https://raw.githubusercontent.com/k930520/build/refs/heads/main/build.sh
           chmod +x ./build.sh
-          sudo ./build.sh 
+          sudo ./build-static.sh
             
       - name: Release caddy
         uses: softprops/action-gh-release@v2
