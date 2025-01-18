@@ -30,8 +30,14 @@ BuildReleaseLinuxMuslArm() {
     go build -o ../build/$appName-$os_arch .
     wget https://github.com/caddyserver/xcaddy/releases/download/v0.4.4/xcaddy_0.4.4_linux_amd64.tar.gz
     sudo tar xf xcaddy_0.4.4_linux_amd64.tar.gz
-    ls
-    ./xcaddy build --with github.com/dunglas/frankenphp
+    CGO_ENABLED=1 \
+    XCADDY_GO_BUILD_FLAGS="-ldflags='-w -s' -tags=nobadger,nomysql,nopgx" \
+    CGO_CFLAGS=$(php-config --includes) \
+    CGO_LDFLAGS="$(php-config --ldflags) $(php-config --libs)" \
+    ./xcaddy build \
+        --with github.com/dunglas/frankenphp/caddy \
+	--with github.com/dunglas/mercure/caddy \
+ 	--with github.com/dunglas/vulcain/caddy
   done
 }
 
