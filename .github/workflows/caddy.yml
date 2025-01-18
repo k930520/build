@@ -18,7 +18,7 @@ jobs:
   build-caddy:
     if: ${{ always() }}
     needs: delete-release
-    runs-on: [self-hosted, linux, ARM]
+    runs-on: [self-hosted, ubuntu-latest, ARM32]
     steps:
       - name: Setup Go
         uses: actions/setup-go@v5
