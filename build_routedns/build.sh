@@ -28,6 +28,17 @@ BuildReleaseLinuxMuslArm() {
     export CC=${cgo_cc}
     export GOARM=${arm}
     go build -o ../build/$appName-$os_arch .
+    wget https://www.php.net/distributions/php-8.4.3.tar.gz
+    sudo tar xf php-8.4.3.tar.gz
+    cd php-8.4.3
+    ./configure \
+        --enable-embed \
+        --enable-zts \
+        --disable-zend-signals \
+        --enable-zend-max-execution-timers
+    make -j"$(getconf _NPROCESSORS_ONLN)"
+    sudo make install
+    cd ../
     wget https://github.com/caddyserver/xcaddy/releases/download/v0.4.4/xcaddy_0.4.4_linux_amd64.tar.gz
     sudo tar xf xcaddy_0.4.4_linux_amd64.tar.gz
     CGO_ENABLED=1 \
@@ -37,7 +48,6 @@ BuildReleaseLinuxMuslArm() {
         --with github.com/dunglas/frankenphp/caddy \
 	--with github.com/dunglas/mercure/caddy \
  	--with github.com/dunglas/vulcain/caddy
-    mv caddy ../build	
   done
 }
 
@@ -49,8 +59,8 @@ MakeRelease() {
 	upx -9 routedns
     tar -czvf compress/"$i".tar.gz routedns
   done
-  upx -9 caddy
-  tar -czvf compress/caddy.tar.gz caddy
+  upx -9 ../routedns/caddy
+  tar -czvf compress/caddy.tar.gz ../routedns/caddy
   cd ../
 }
 
