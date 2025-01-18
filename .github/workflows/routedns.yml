@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install upx
+          sudo apt install upx make
           
       - name: Build
         env:
