@@ -31,7 +31,7 @@ BuildReleaseLinuxMuslArm() {
     wget https://www.php.net/distributions/php-8.4.3.tar.gz
     sudo tar xf php-8.4.3.tar.gz
     cd php-8.4.3
-    ./configure \
+    sudo ./configure \
         --enable-embed \
         --enable-zts \
         --disable-zend-signals \
