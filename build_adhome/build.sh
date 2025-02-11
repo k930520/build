@@ -14,9 +14,9 @@ sudo sed -i -e "/	fallbacks := s.conf.FallbackDNS/r build_adhome/adhome/internal
 
 sudo sed -i -e "/	if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
 
-sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_u.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(*\req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_u.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
-sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(*req.Fallbacks, opts)/r build_adhome/adhome/internal/dnsforward/http_f.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(*\req.Fallbacks, opts)/r build_adhome/adhome/internal/dnsforward/http_f.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
 cd AdGuardHome
 
