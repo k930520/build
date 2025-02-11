@@ -2,6 +2,8 @@ version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/AdguardTeam/AdGuardHom
 
 git clone -b $version https://github.com/AdguardTeam/AdGuardHome
 
+sudo sed -i -e '/	"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
+
 sudo sed -i -e "/		return dlURL, key, true/r build_adhome/adhome/internal/updater/check.txt" -e "//d" AdGuardHome/internal/updater/check.go
 
 sudo sed -i -e "/type Server struct {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
