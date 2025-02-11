@@ -1,0 +1,5 @@
+		fallbacks, err := pretreatmentUpstream(*req.Fallbacks, nil)
+		if err != nil {
+			return err
+		}
+		uc, err = proxy.ParseUpstreamsConfig(fallbacks, opts)

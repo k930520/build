@@ -1,0 +1,47 @@
+func pretreatmentUpstream(pendingUpstreams []string, s *Server) (upstreams []string, err error) {
+	for _, ups := range pendingUpstreams {
+		if strings.HasPrefix(ups, "[/") {
+			var tmp []string
+			domainsLine, upstreamsLine, found := strings.Cut(ups[len("[/"):], "/]")
+			if found && domainsLine != "" {
+				for _, confHost := range strings.Split(domainsLine, "/") {
+					host, ednsAddr, f := strings.Cut(confHost, "|")
+					if f {
+						if host != "" {
+							if err = netutil.ValidateDomainName(strings.TrimPrefix(host, "*.")); err != nil {
+								return nil, fmt.Errorf("invalid address %s: %w", host, err)
+							}
+							tmp = append(tmp, host)
+							if ednsAddr != "" {
+								addr, err := netip.ParseAddr(ednsAddr)
+								if err != nil {
+									return nil, fmt.Errorf("invalid EDNSAddr %s: %w", ednsAddr, err)
+								}
+								if s != nil {
+									s.domainEDNSAddr = make(map[string]net.IP, 0)
+									s.domainEDNSAddr[strings.ToLower(host+".")] = addr.AsSlice()
+								}
+							}
+						}
+					} else {
+						if confHost != "" {
+							tmp = append(tmp, confHost)
+						}
+					}
+				}
+			}
+			if tmp != nil {
+				upstreams = append(upstreams, "[/"+strings.Join(tmp, "/")+"/]"+upstreamsLine)
+			} else {
+				upstreams = append(upstreams, upstreamsLine)
+			}
+		} else {
+			upstreams = append(upstreams, ups)
+		}
+	}
+	return upstreams, nil
+}
+
+type Server struct {
+	// domainEDNSAddr maps the domain names to the EDNSAddr.
+	domainEDNSAddr map[string]net.IP

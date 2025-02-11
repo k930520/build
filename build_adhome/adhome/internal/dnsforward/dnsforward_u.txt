@@ -1,0 +1,7 @@
+	upstreams, err = pretreatmentUpstream(upstreams, s)
+	if err != nil {
+		return err
+	}
+	upstreams = stringutil.FilterOut(upstreams, IsCommentOrEmpty)
+
+	uc, err := newUpstreamConfig(upstreams, defaultDNS, &upstream.Options{
