@@ -6,17 +6,13 @@ sudo sed -i -e '/	"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
 sudo sed -i -e "/		return dlURL, key, true/r build_adhome/adhome/internal/updater/check.txt" -e "//d" AdGuardHome/internal/updater/check.go
 
-sudo sed -i -e "/type Server struct {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
+sed -i -e "/                return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/a\         upstreams = conf.UpstreamDNS" -e "//d" AdGuardHome/internal/dnsforward/congif.go
 
-sudo sed -i -e "/	uc, err := newUpstreamConfig(upstreams, defaultDNS, &upstream.Options{/r build_adhome/adhome/internal/dnsforward/dnsforward_u.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
-
-sudo sed -i -e "/	fallbacks := s.conf.FallbackDNS/r build_adhome/adhome/internal/dnsforward/dnsforward_f.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
+sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
 sudo sed -i -e "/	if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
 
-sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_u.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
-
-sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(\*req.Fallbacks, opts)/r build_adhome/adhome/internal/dnsforward/http_f.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+sudo sed -i -e "/		uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
 cd AdGuardHome
 
