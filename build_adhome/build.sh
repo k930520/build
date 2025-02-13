@@ -18,12 +18,8 @@ sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r b
 
 cd AdGuardHome
 
-mkdir dist
+make CHANNEL='release' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
 
-#make CHANNEL='release' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
+upx -9 ./dist/AdGuardHome/AdGuardHome
 
-tar -czvf dist/AdGuardHome_dist.tar.gz internal/*
-
-#upx -9 ./dist/AdGuardHome/AdGuardHome
-
-#tar -C "./dist" -c -f - "./AdGuardHome" | gzip -9 - > "dist/AdGuardHome_linux_armv7.tar.gz"
+tar -C "./dist" -c -f - "./AdGuardHome" | gzip -9 - > "dist/AdGuardHome_linux_armv7.tar.gz"
