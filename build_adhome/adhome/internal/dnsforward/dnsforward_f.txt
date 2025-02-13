@@ -1,5 +1,0 @@
-	fallbacks := s.conf.FallbackDNS
-	fallbacks, err = pretreatmentUpstream(fallbacks, s)
-	if err != nil {
-		return nil, err
-	}
