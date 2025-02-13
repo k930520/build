@@ -1,11 +1,11 @@
 	for fqdn := req.Question[0].Name; fqdn != ""; {
-		ip, ok := s.domainEDNSAddr[fqdn]
-		if ok {
+		ip, ok := s.conf.DomainEDNSAddr["*."+fqdn]
+		if ok && fqdn != req.Question[0].Name {
 			prx.EnableEDNSClientSubnet = true
 			prx.EDNSAddr = ip
 			break
 		}
-		ip, ok = s.domainEDNSAddr["*."+fqdn]
+		ip, ok = s.conf.DomainEDNSAddr[fqdn]
 		if ok {
 			prx.EnableEDNSClientSubnet = true
 			prx.EDNSAddr = ip
@@ -14,5 +14,3 @@
 
 		_, fqdn, _ = strings.Cut(fqdn, ".")
 	}
-
-	if dctx.err = prx.Resolve(pctx); dctx.err != nil {
