@@ -1,12 +1,18 @@
-	for k, v := range s.domainEDNSAddr {
-		if strings.HasSuffix(req.Question[0].Name, strings.TrimPrefix(k, "*.")) {
-			if strings.HasPrefix(k, "*.") && req.Question[0].Name == strings.TrimPrefix(k, "*.") {
-				break
-			}
+	for fqdn := req.Question[0].Name; fqdn != ""; {
+		ip, ok := s.domainEDNSAddr[fqdn]
+		if ok {
 			prx.EnableEDNSClientSubnet = true
-			prx.EDNSAddr = v
+			prx.EDNSAddr = ip
 			break
 		}
+		ip, ok = s.domainEDNSAddr["*."+fqdn]
+		if ok {
+			prx.EnableEDNSClientSubnet = true
+			prx.EDNSAddr = ip
+			break
+		}
+
+		_, fqdn, _ = strings.Cut(fqdn, ".")
 	}
 
 	if dctx.err = prx.Resolve(pctx); dctx.err != nil {
