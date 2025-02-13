@@ -1,4 +1,4 @@
-func pretreatmentUpstream(pendingUpstreams []string, s *Server) (upstreams []string, err error) {
+func pretreatmentUpstream(pendingUpstreams []string, domainEDNSAddr map[string]net.IP) (upstreams []string, err error) {
 	for _, ups := range pendingUpstreams {
 		if strings.HasPrefix(ups, "[/") {
 			var tmp []string
@@ -17,9 +17,8 @@ func pretreatmentUpstream(pendingUpstreams []string, s *Server) (upstreams []str
 								if err != nil {
 									return nil, fmt.Errorf("invalid EDNSAddr %s: %w", ednsAddr, err)
 								}
-								if s != nil {
-									s.domainEDNSAddr = make(map[string]net.IP, 0)
-									s.domainEDNSAddr[strings.ToLower(host+".")] = addr.AsSlice()
+								if domainEDNSAddr != nil {
+									domainEDNSAddr[strings.ToLower(host+".")] = addr.AsSlice()
 								}
 							}
 						}
@@ -42,6 +41,6 @@ func pretreatmentUpstream(pendingUpstreams []string, s *Server) (upstreams []str
 	return upstreams, nil
 }
 
-type Server struct {
+type ServerConfig struct {
 	// domainEDNSAddr maps the domain names to the EDNSAddr.
-	domainEDNSAddr map[string]net.IP
+	DomainEDNSAddr map[string]net.IP
