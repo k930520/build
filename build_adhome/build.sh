@@ -6,7 +6,9 @@ sudo sed -i -e '/	"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
 sudo sed -i -e "/		return dlURL, key, true/r build_adhome/adhome/internal/updater/check.txt" -e "//d" AdGuardHome/internal/updater/check.go
 
-sed -i -e "/                return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/a\         upstreams = conf.UpstreamDNS" -e "//d" AdGuardHome/internal/dnsforward/congif.go
+sed -i -e '/                return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/             upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/congif.go
+
+sudo sed -i -e "/	return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
 sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
