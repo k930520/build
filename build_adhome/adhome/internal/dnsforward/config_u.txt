@@ -1,0 +1,10 @@
+	}
+
+	conf.DomainEDNSAddr = make(map[string]net.IP, 0)
+	upstreams, err = pretreatmentUpstream(upstreams, conf.DomainEDNSAddr)
+	if err != nil {
+		return upstreams, err
+	}
+
+	return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil
+  
