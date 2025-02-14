@@ -1,0 +1,8 @@
+	upstreams, err := pretreatmentUpstream(req.Upstreams, nil)
+	if err != nil {
+		aghhttp.Error(r, w, http.StatusBadRequest, "%s", err)
+
+		return
+	}
+
+	cv := newUpstreamConfigValidator(upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)
