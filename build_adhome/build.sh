@@ -1,6 +1,8 @@
-#version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
+rm -rf AdGuardHome
 
-#git clone -b $version https://github.com/AdguardTeam/AdGuardHome
+version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
+
+git clone -b $version https://github.com/AdguardTeam/AdGuardHome
 
 sudo sed -i -e '/"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
@@ -20,7 +22,7 @@ sudo sed -i -e "/cv := newUpstreamConfigValidator(req.Upstreams, req.FallbackDNS
 
 cd AdGuardHome
 
-make CHANNEL='edge' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
+make CHANNEL='release' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
 
 tar -czvf dist/AdGuardHome_dist.tar.gz internal/*
 
