@@ -44,7 +44,7 @@ jobs:
         with:
           repository: AdguardTeam/AdGuardHome
           ref: master
-          path: adhome
+          path: AdGuardHome
           persist-credentials: false
           fetch-depth: 0
 
@@ -61,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
           tag_name: adhome
-          files: adhome/dist/AdGuardHome_*
+          files: AdGuardHome/dist/AdGuardHome_*
           prerelease: false
           
       - name: Delete workflow runs
