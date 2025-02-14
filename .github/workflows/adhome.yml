@@ -2,7 +2,7 @@ name: adhome
 
 on:
   schedule:
-    - cron: '0 17 * * *'
+    - cron: '0 18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -38,6 +38,15 @@ jobs:
           ref: main
           persist-credentials: false
           fetch-depth: 0
+          
+      - name: Checkout AdGuardHome repo
+        uses: actions/checkout@v4
+        with:
+          repository: AdguardTeam/AdGuardHome
+          ref: master
+          path: adhome
+          persist-credentials: false
+          fetch-depth: 0
 
       - name: Build
         env:
@@ -52,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
           tag_name: adhome
-          files: AdGuardHome/dist/AdGuardHome_*
+          files: adhome/dist/AdGuardHome_*
           prerelease: false
           
       - name: Delete workflow runs
