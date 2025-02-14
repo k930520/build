@@ -1,6 +1,6 @@
-version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
+#version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
 
-git clone -b v0.107.55 https://github.com/AdguardTeam/AdGuardHome
+#git clone -b $version https://github.com/AdguardTeam/AdGuardHome
 
 sudo sed -i -e '/"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
@@ -18,7 +18,7 @@ sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r b
 
 cd AdGuardHome
 
-make CHANNEL='release' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
+make CHANNEL='edge' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
 
 #tar -czvf dist/AdGuardHome_dist.tar.gz internal/*
 
