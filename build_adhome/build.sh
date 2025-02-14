@@ -14,7 +14,9 @@ sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsfo
 
 sudo sed -i -e "/if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
 
-sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_s.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+
+sudo sed -i -e "/cv := newUpstreamConfigValidator(upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_t.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
 cd AdGuardHome
 
