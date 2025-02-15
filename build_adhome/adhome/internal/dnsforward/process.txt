@@ -18,15 +18,9 @@
 		_, fqdn, _ = strings.Cut(fqdn, ".")
 	}
 
-	tmpReqECS := pctx.ReqECS
-	tmpExtra := pctx.Req.Extra
-
 	dctx.err = prx.Resolve(pctx)
 
 	prx.EnableEDNSClientSubnet = tmpEnableEDNSClientSubnet
 	prx.EDNSAddr = tmpEDNSAddr
-	dctx.proxyCtx.ReqECS = tmpReqECS
-	dctx.proxyCtx.Req.Extra = tmpExtra
-	dctx.proxyCtx.Res.Extra = tmpExtra
 
 	if dctx.err != nil {
