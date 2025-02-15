@@ -50,7 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
           tag_name: adhome
-          files: build/dist/AdGuardHome_*
+          files: build/AdGuardHome_*
           prerelease: false
           
       - name: Delete workflow runs
