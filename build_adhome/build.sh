@@ -10,7 +10,7 @@ sudo sed -i -e "/return dlURL, key, true/r build_adhome/adhome/internal/updater/
 
 sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
 
-sudo sed -i -e '/if withECS {/{s/.*/	c.itemsWithSubnet = c.items/;n;d;n;d;}' $GOMODCACHE/github.com/!adguard!team/dnsproxy@v0.75.0/proxy/cache.go
+sudo sed -i -e '/if withECS {/{s/.*/	c.itemsWithSubnet = c.items/;n;d;n;d;}' /home/runner/go/pkg/mod/github.com/!adguard!team/dnsproxy@v0.75.0/proxy/cache.go
 
 sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
