@@ -26,7 +26,7 @@ go mod tidy
 
 dnsproxy=$(ls -l /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep dnsproxy)
 
-echoo $dnsproxy
+echo $dnsproxy
 
 sudo sed -i -e '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/dnsproxy@v0.75.0/proxy/cache.go
 
