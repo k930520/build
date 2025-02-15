@@ -44,8 +44,8 @@ BuildAdGuardHome() {
 
 mkdir build
 
-VERSIONS=(edge beta release)
-for i in "${VERSIONS[@]}"; do
+CHANNEL=(edge beta release)
+for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	if [ "${i}" == "edge" ]; then
 		git clone https://github.com/AdguardTeam/AdGuardHome
