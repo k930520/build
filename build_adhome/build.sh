@@ -10,8 +10,6 @@ sudo sed -i -e "/return dlURL, key, true/r build_adhome/adhome/internal/updater/
 
 sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
 
-sudo sed -i -e '/if withECS {/{s/.*/	c.itemsWithSubnet = c.items/;n;d;n;d;}' /home/runner/go/pkg/mod/github.com/!adguard!team/dnsproxy@v0.75.0/proxy/cache.go
-
 sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
 sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
@@ -23,6 +21,10 @@ sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r b
 sudo sed -i -e "/cv := newUpstreamConfigValidator(req.Upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_t.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
 cd AdGuardHome
+
+go mod tidy
+
+sudo sed -i -e '/if withECS {/{s/.*/	c.itemsWithSubnet = c.items/;n;d;n;d;}' $GOMODCACHE/github.com/!adguard!team/dnsproxy@v0.75.0/proxy/cache.go
 
 make CHANNEL='edge' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
 
