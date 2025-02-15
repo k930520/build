@@ -32,25 +32,14 @@ jobs:
         with:
           go-version: 1.23
 
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           ref: main
           persist-credentials: false
           fetch-depth: 0
-          
-      - name: Checkout AdGuardHome repo
-        uses: actions/checkout@v4
-        with:
-          repository: AdguardTeam/AdGuardHome
-          ref: master
-          path: AdGuardHome
-          persist-credentials: false
-          fetch-depth: 0
 
       - name: Build
-        env:
-          github_token: ${{ secrets.MY_TOKEN }}
         run: |
           sudo apt-get update && sudo apt-get install -y git upx
           bash build_adhome/build.sh
@@ -61,7 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
           tag_name: adhome
-          files: AdGuardHome/dist/AdGuardHome_*
+          files: build/dist/AdGuardHome_*
           prerelease: false
           
       - name: Delete workflow runs
