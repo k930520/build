@@ -31,11 +31,13 @@ BuildAdGuardHome() {
 
 	tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/$1_AdGuardHome_linux_armv7.tar.gz"
 	
-	go clean -cache
-	
 	cd ../
+
+	echo clean for $1
 	
 	rm -rf AdGuardHome
+
+ 	go clean -modcache
 }
 
 mkdir build
