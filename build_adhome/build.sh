@@ -39,7 +39,9 @@ BuildAdGuardHome() {
 	
 	rm -rf AdGuardHome
 
- 	rm -rf /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy
+ 	sudo rm -rf /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy
+
+  	go clean -modcache
 }
 
 mkdir build
