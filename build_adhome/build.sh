@@ -29,7 +29,7 @@ BuildAdGuardHome() {
 
 	upx -9 dist/AdGuardHome/AdGuardHome
 
-	tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$1_linux_armv7.tar.gz"
+	tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/$1_AdGuardHome_linux_armv7.tar.gz"
 	
 	go clean -cache
 	
