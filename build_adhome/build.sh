@@ -24,7 +24,7 @@ cd AdGuardHome
 
 go mod tidy
 
-sudo sed -i -e '/if withECS {/{s/.*/	c.itemsWithSubnet = c.items/;n;d;n;d;}' $GOMODCACHE/github.com/!adguard!team/dnsproxy@v0.75.0/proxy/cache.go
+sudo sed -i -e '/if withECS {/{s/.*/	c.itemsWithSubnet = c.items/;n;d;n;d;}' $GOMODCACHE/github.com/\!adguard\!team/dnsproxy@v0.75.0/proxy/cache.go
 
 make CHANNEL='edge' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
 
