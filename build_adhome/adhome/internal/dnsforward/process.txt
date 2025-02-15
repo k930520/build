@@ -1,5 +1,5 @@
-	var tmpEnableEDNSClientSubnet = prx.EnableEDNSClientSubnet
-	var tmpEDNSAddr = prx.EDNSAddr
+	tmpEnableEDNSClientSubnet := prx.EnableEDNSClientSubnet
+	tmpEDNSAddr := prx.EDNSAddr
 
 	for fqdn := req.Question[0].Name; fqdn != ""; {
 		ip, ok := s.conf.DomainEDNSAddr["*."+fqdn]
@@ -17,10 +17,16 @@
 
 		_, fqdn, _ = strings.Cut(fqdn, ".")
 	}
-	
+
+	tmpReqECS := pctx.ReqECS
+	tmpExtra := pctx.Req.Extra
+
 	dctx.err = prx.Resolve(pctx)
-	
+
 	prx.EnableEDNSClientSubnet = tmpEnableEDNSClientSubnet
 	prx.EDNSAddr = tmpEDNSAddr
-	
+	dctx.proxyCtx.ReqECS = tmpReqECS
+	dctx.proxyCtx.Req.Extra = tmpExtra
+	dctx.proxyCtx.Res.Extra = tmpExtra
+
 	if dctx.err != nil {
