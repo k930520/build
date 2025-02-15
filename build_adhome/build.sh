@@ -43,7 +43,7 @@ mkdir build
 VERSIONS=(edge beta release)
 for i in "${VERSIONS[@]}"; do
 	echo building for ${i}
-	if [ "${i}" -gt 'edge' ]; then
+	if [ "${i}" == "edge" ]; then
 		git clone https://github.com/AdguardTeam/AdGuardHome
 	else
 		version=$(wget -qO- -t1 -T2 "https://static.adtidy.org/adguardhome/${i}/version.json" | grep "version" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
