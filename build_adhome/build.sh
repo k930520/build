@@ -1,39 +1,53 @@
-#rm -rf AdGuardHome
+BuildAdGuardHome() {
+	sudo sed -i -e '/"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
-#version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
+	sudo sed -i -e "/return dlURL, key, true/r build_adhome/adhome/internal/updater/check.txt" -e "//d" AdGuardHome/internal/updater/check.go
 
-#git clone -b $version https://github.com/AdguardTeam/AdGuardHome
+	sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
 
-sudo sed -i -e '/"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
+	sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
-sudo sed -i -e "/return dlURL, key, true/r build_adhome/adhome/internal/updater/check.txt" -e "//d" AdGuardHome/internal/updater/check.go
+	sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
-sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
+	sudo sed -i -e "/if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
 
-sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
+	sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_s.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
-sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
+	sudo sed -i -e "/cv := newUpstreamConfigValidator(req.Upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_t.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
-sudo sed -i -e "/if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
+	cd AdGuardHome
 
-sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_s.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+	go mod tidy
 
-sudo sed -i -e "/cv := newUpstreamConfigValidator(req.Upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_t.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+	dnsproxy=$(ls /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep dnsproxy)
 
-cd AdGuardHome
+	sudo sed -i -e '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
 
-go mod tidy
+	sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet = c.items/;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
 
-dnsproxy=$(ls /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep dnsproxy)
+	make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
-sudo sed -i -e '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
+	upx -9 dist/AdGuardHome/AdGuardHome
 
-sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet = c.items/;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
+	tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$1_linux_armv7.tar.gz"
+	
+	go clean -cache
+	
+	cd ../
+	
+	rm -rf AdGuardHome
+}
 
-make CHANNEL='edge' GOOS='linux' GOARCH='arm' GOARM='7' OUT='./dist/AdGuardHome/AdGuardHome'
+mkdir build
 
-#tar -czvf dist/AdGuardHome_dist.tar.gz internal/*
-
-upx -9 ./dist/AdGuardHome/AdGuardHome
-
-tar -C "./dist" -c -f - "./AdGuardHome" | gzip -9 - > "dist/AdGuardHome_linux_armv7.tar.gz"
+VERSIONS=(edge beta release)
+for i in "${VERSIONS[@]}"; do
+	echo building for ${i}
+	if [ "${i}" -gt 'edge' ]; then
+		git clone https://github.com/AdguardTeam/AdGuardHome
+	else
+		version=$(wget -qO- -t1 -T2 "https://static.adtidy.org/adguardhome/${i}/version.json" | grep "version" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
+		git clone -b $version https://github.com/AdguardTeam/AdGuardHome
+	fi
+	BuildAdGuardHome ${i}
+done
