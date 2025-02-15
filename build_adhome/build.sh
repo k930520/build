@@ -21,6 +21,8 @@ BuildAdGuardHome() {
 
 	dnsproxy=$(ls /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep dnsproxy)
 
+ 	echo dnsproxy is $dnsproxy
+
 	sudo sed -i -e '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
 
 	sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet = c.items/;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
@@ -37,7 +39,7 @@ BuildAdGuardHome() {
 	
 	rm -rf AdGuardHome
 
- 	go clean -modcache
+ 	rm -rf /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy
 }
 
 mkdir build
