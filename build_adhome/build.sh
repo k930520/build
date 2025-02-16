@@ -5,6 +5,8 @@ BuildAdGuardHome() {
 
 	sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
 
+ 	sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr []netip.Addr, err error) {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
+
 	sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
 	sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
