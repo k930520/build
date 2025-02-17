@@ -46,14 +46,14 @@ BuildAdGuardHome() {
 
 mkdir build
 
-CHANNEL=(release)
+CHANNEL=(edge beta release)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	if [ "${i}" == "edge" ]; then
 		git clone https://github.com/AdguardTeam/AdGuardHome
 	else
 		version=$(wget -qO- -t1 -T2 "https://static.adtidy.org/adguardhome/${i}/version.json" | grep "version" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
-		git clone -b v0.107.55 https://github.com/AdguardTeam/AdGuardHome
+		git clone -b $version https://github.com/AdguardTeam/AdGuardHome
 	fi
 	BuildAdGuardHome ${i}
 done
