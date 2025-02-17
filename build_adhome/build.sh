@@ -36,8 +36,6 @@ BuildAdGuardHome() {
 
    	sudo sed -i '/"maps"/a\ 	"net/netip"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-    	sudo sed -i '/"github.com/AdguardTeam/golibs/netutil"/a\ 	"github.com/miekg/dns"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
-
      	sudo sed -i '/type UpstreamConfig struct {/a\	DomainEDNSAddr map[string]netip.Addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
       
      	sudo sed -i '/logger \*slog.Logger/a\	domainEDNSAddr map[string]netip.Addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
@@ -57,7 +55,7 @@ BuildAdGuardHome() {
 		if err != nil {\
 			return nil, nil, err\
 		}\
-		p.domainEDNSAddr[dns.Fqdn(confHost)] = addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+		p.domainEDNSAddr[strings.ToLower(confHost+".")] = addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 	make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
