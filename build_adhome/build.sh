@@ -1,7 +1,7 @@
 BuildAdGuardHome() {
 	sudo sed -i -e '/"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
-	sudo sed -i -e '/return dlURL, key, true/i\
+	sudo sed -i '/return dlURL, key, true/i\
  		split := strings.Split(dlURL, "/")\
 		dlURL = "http://github.home.local/https://github.com/k930520/build/releases/download/adhome/" + strings.Replace(split[len(split)-1], "AdGuardHome", "AdGuardHome_"+u.channel, 1)' AdGuardHome/internal/updater/check.go
 
