@@ -48,7 +48,7 @@ BuildAdGuardHome() {
 
    	sudo sed -i '/if confHost == "" {/i\		
 		confHost, ednsAddr, f := strings.Cut(confHost, "|")\
-		if !f || ednsAddr == "" {\
+		if f && ednsAddr == "" {\
 			return nil, nil, errors.Error("wrong upstream format")\
 		}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
