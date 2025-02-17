@@ -1,8 +1,8 @@
 func (s *Server) Resolve(ctx context.Context, net, host string) (addr []netip.Addr, err error) {
 
 	setts := &filtering.Settings{FilteringEnabled: true}
-	for i := range []uint16{dns.TypeA, dns.TypeAAAA} {
-		resVal, err := s.dnsFilter.CheckHost(dns.Fqdn(host), uint16(i), setts)
+	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {
+		resVal, err := s.dnsFilter.CheckHost(strings.TrimSuffix(host,"."), u, setts)
 		if err == nil {
 			if resVal.Reason.In(filtering.Rewritten) && resVal.CanonName != "" && len(resVal.IPList) == 0 {
 				host = dns.Fqdn(resVal.CanonName)
