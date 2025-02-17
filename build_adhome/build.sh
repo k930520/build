@@ -5,7 +5,7 @@ BuildAdGuardHome() {
 
 	sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
 
- 	sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr []netip.Addr, err error) {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
+ 	sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
 
 	sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
@@ -46,14 +46,14 @@ BuildAdGuardHome() {
 
 mkdir build
 
-CHANNEL=(edge beta release)
+CHANNEL=(release)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	if [ "${i}" == "edge" ]; then
 		git clone https://github.com/AdguardTeam/AdGuardHome
 	else
 		version=$(wget -qO- -t1 -T2 "https://static.adtidy.org/adguardhome/${i}/version.json" | grep "version" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
-		git clone -b $version https://github.com/AdguardTeam/AdGuardHome
+		git clone -b v0.107.55 https://github.com/AdguardTeam/AdGuardHome
 	fi
 	BuildAdGuardHome ${i}
 done
