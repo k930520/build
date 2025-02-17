@@ -3,19 +3,19 @@ BuildAdGuardHome() {
 
 	sudo sed -i -e "/return dlURL, key, true/r build_adhome/adhome/internal/updater/check.txt" -e "//d" AdGuardHome/internal/updater/check.go
 
-	sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
+	#sudo sed -i -e '/return stringutil.FilterOut(conf.UpstreamDNS, IsCommentOrEmpty), nil/{s/.*/		upstreams = conf.UpstreamDNS } else {/;n;d;}' AdGuardHome/internal/dnsforward/config.go
 
- 	sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
+ 	#sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
 
-	sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
+	#sudo sed -i -e "/return stringutil.FilterOut(upstreams, IsCommentOrEmpty), nil/r build_adhome/adhome/internal/dnsforward/config_u.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
-	sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
+	#sudo sed -i -e "/type ServerConfig struct {/r build_adhome/adhome/internal/dnsforward/config.txt" -e "//d" AdGuardHome/internal/dnsforward/config.go
 
-	sudo sed -i -e "/if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
+	#sudo sed -i -e "/if dctx.err = prx.Resolve(pctx); dctx.err != nil {/r build_adhome/adhome/internal/dnsforward/process.txt" -e "//d" AdGuardHome/internal/dnsforward/process.go
 
-	sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_s.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+	#sudo sed -i -e "/uc, err = proxy.ParseUpstreamsConfig(\*req.Upstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_s.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
-	sudo sed -i -e "/cv := newUpstreamConfigValidator(req.Upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_t.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
+	#sudo sed -i -e "/cv := newUpstreamConfigValidator(req.Upstreams, req.FallbackDNS, req.PrivateUpstreams, opts)/r build_adhome/adhome/internal/dnsforward/http_t.txt" -e "//d" AdGuardHome/internal/dnsforward/http.go
 
 	cd AdGuardHome
 
@@ -28,6 +28,48 @@ BuildAdGuardHome() {
 	sudo sed -i -e '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
 
 	sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet = c.items/;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
+
+ 	sudo sed -i -e '/"slices"/a\ 	"strings"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+
+        sudo sed -i '/dctx.calcFlagsAndSize()/i\		
+	for fqdn := dctx.Req.Question[0].Name; fqdn != ""; {\
+		ip, ok := p.UpstreamConfig.DomainEDNSAddr["*."+fqdn]\
+		if ok && fqdn != dctx.Req.Question[0].Name {\
+			dctx.processECS(ip.AsSlice(), p.logger)\
+			break\
+		}\
+		ip, ok = p.UpstreamConfig.DomainEDNSAddr[fqdn]\
+		if ok {\
+			dctx.processECS(ip.AsSlice(), p.logger)\
+			break\
+		}\
+		_, fqdn, _ = strings.Cut(fqdn, ".")\
+	}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+
+   	sudo sed -i -e '/"maps"/a\ 	"net/netip"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+    	sudo sed -i -e '/"github.com/AdguardTeam/golibs/netutil"/a\ 	"github.com/miekg/dns"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+     	sudo sed -i -e '/type UpstreamConfig struct {/a\	DomainEDNSAddr map[string]netip.Addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+      
+     	sudo sed -i -e '/logger \*slog.Logger/a\	domainEDNSAddr map[string]netip.Addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+      
+	sudo sed -i -e '/logger:                   opts.Logger,/a\		domainEDNSAddr:           map[string]netip.Addr{},' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+	sudo sed -i -e '/Upstreams:                p.upstreams,/a\		DomainEDNSAddr:           p.domainEDNSAddr,' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+   	sudo sed -i '/if confHost == "" {/i\		
+		confHost, ednsAddr, f := strings.Cut(confHost, "|")\
+		if !f || ednsAddr == "" {\
+			return nil, nil, errors.Error("wrong upstream format")\
+		}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+     	sudo sed -i '/domains = append(domains, strings.ToLower(confHost+"."))/i\		
+		addr, err := netip.ParseAddr(ednsAddr)\
+		if err != nil {\
+			return nil, nil, err\
+		}\
+		p.domainEDNSAddr[dns.Fqdn(confHost)] = addr' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 	make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
