@@ -18,9 +18,13 @@
 		_, fqdn, _ = strings.Cut(fqdn, ".")
 	}
 
+	log.Debug("dnsforward: processing %s ecs before is %s", req.Question[0].Name, prx.EDNSAddr.String())
+
 	dctx.err = prx.Resolve(pctx)
 
 	prx.EnableEDNSClientSubnet = tmpEnableEDNSClientSubnet
 	prx.EDNSAddr = tmpEDNSAddr
+
+	log.Debug("dnsforward: processing %s ecs after is %s", req.Question[0].Name, prx.EDNSAddr.String())
 
 	if dctx.err != nil {
