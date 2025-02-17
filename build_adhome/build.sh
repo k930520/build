@@ -20,18 +20,18 @@ sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet 
 sudo sed -i '/"slices"/a\ 	"strings"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 	
 sudo sed -i '/dctx\.calcFlagsAndSize()/i\
-	for fqdn := dctx.Req.Question.Name; fqdn != ""; {\
-	    ip, ok := p.UpstreamConfig.DomainEDNSAddr["*."+fqdn]\
-	    if ok && fqdn != dctx.Req.Question.Name {\
-	        dctx.processECS(ip.AsSlice(), p.logger)\
-	        break\
-	    }\
-	    ip, ok = p.UpstreamConfig.DomainEDNSAddr[fqdn]\
-	    if ok {\
-	        dctx.processECS(ip.AsSlice(), p.logger)\
-	        break\
-	    }\
-	    _, fqdn, _ = strings.Cut(fqdn, ".")\
+	for fqdn := dctx.Req.Question[0].Name; fqdn != ""; {\
+		addr, ok := p.UpstreamConfig.DomainEDNSAddr["*."+fqdn]\
+		if ok && fqdn != dctx.Req.Question[0].Name {\
+			dctx.processECS(addr.AsSlice(), p.logger)\
+			break\
+		}\
+		addr, ok = p.UpstreamConfig.DomainEDNSAddr[fqdn]\
+		if ok {\
+			dctx.processECS(addr.AsSlice(), p.logger)\
+			break\
+		}\
+		_, fqdn, _ = strings.Cut(fqdn, ".")\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
@@ -44,6 +44,10 @@ sudo sed -i '/logger \*slog.Logger/a\	domainEDNSAddr map[string]netip.Addr' /hom
 sudo sed -i '/logger:                   opts.Logger,/a\		domainEDNSAddr:           map[string]netip.Addr{},' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/Upstreams:                p.upstreams,/a\		DomainEDNSAddr:           p.domainEDNSAddr,' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i 's/upstreams, domains, err := splitConfigLine(confLine)/upstreams, domains, err := p.splitConfigLine(confLine)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i 's/func splitConfigLine/func (p *configParser) splitConfigLine/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\/") {/a\
 		confHost, ednsAddr, f := strings.Cut(confHost, "|")\
