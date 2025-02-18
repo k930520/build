@@ -54,14 +54,14 @@ sudo sed -i 's/upstreams, domains, err := splitConfigLine(confLine)/upstreams, d
 sudo sed -i 's/func splitConfigLine/func (p *configParser) splitConfigLine/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\/") {/a\
-		confHost, ednsAddr, f := strings.Cut(confHost, "|")\
-		if f && ednsAddr == "" {\
+		confHost, addrStr, fond := strings.Cut(confHost, "|")\
+		if fond && (confHost == "" || addrStr == "") {\
 			return nil, nil, errors.New("wrong upstream format")\
 		}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/domains = append(domains, strings.ToLower(confHost+"\."))/i\
-		addr, err := netip.ParseAddr(ednsAddr)\
+		addr, err := netip.ParseAddr(addrStr)\
 		if err != nil {\
 			return nil, nil, err\
 		}\
