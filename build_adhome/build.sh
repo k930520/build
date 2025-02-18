@@ -9,6 +9,8 @@ sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string
 
 cd AdGuardHome
 
+tar -czvf ../build/AdGuardHome.tar.gz internal/*
+
 go mod tidy
 
 dnsproxy=$(ls /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep dnsproxy)
@@ -78,12 +80,14 @@ echo clean for $1
 
 rm -rf AdGuardHome
 
+tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
+
 go clean -modcache
 }
 
 mkdir build
 
-CHANNEL=(edge beta release)
+CHANNEL=(edge)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	if [ "${i}" == "edge" ]; then
