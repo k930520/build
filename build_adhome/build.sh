@@ -3,9 +3,26 @@ sudo sed -i '/"slices"/a\ 	"strings"' AdGuardHome/internal/updater/check.go
 
 sudo sed -i '/return dlURL, key, true/i\
 	split := strings.Split(dlURL, "/")\
-	dlURL = "http://github.home.local/https://github.com/k930520/build/releases/download/adhome/" + strings.Replace(split[len(split)-1], "AdGuardHome", "AdGuardHome_"+u.channel, 1)' AdGuardHome/internal/updater/check.go
+	dlURL = "http://github.home.local/https://github.com/k930520/build/releases/download/adhome/" + strings.Replace(split[len(split)-1], "AdGuardHome", "AdGuardHome_"+u.channel, 1)\
+ ' AdGuardHome/internal/updater/check.go
 
-sudo sed -i -e "/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/r build_adhome/adhome/internal/dnsforward/dnsforward.txt" -e "//d" AdGuardHome/internal/dnsforward/dnsforward.go
+sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
+	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
+		resVal, err := s.dnsFilter.CheckHost(strings.TrimSuffix(host,"."), u, &filtering.Settings{FilteringEnabled: true})\
+		if err == nil {\
+			if resVal.Reason.In(filtering.Rewritten) && resVal.CanonName != "" && len(resVal.IPList) == 0 {\
+				host = dns.Fqdn(resVal.CanonName)\
+				break\
+			}\
+			if resVal.Reason.In(filtering.Rewritten) {\
+				addr = append(addr, resVal.IPList...)\
+			}\
+		}\
+	}\
+	if len(addr) > 0 {\
+		return addr, nil\
+	}\
+ ' AdGuardHome/internal/dnsforward/dnsforward.go
 
 cd AdGuardHome
 
