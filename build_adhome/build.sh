@@ -53,7 +53,7 @@ sudo sed -i '/getUpstreams := (\*UpstreamConfig).getUpstreamsForDomain/i\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
-sudo sed -i '/dctx\.calcFlagsAndSize()/i\
+sudo sed -i '/dctx.calcFlagsAndSize()/i\
 	for fqdn := dctx.Req.Question[0].Name; fqdn != ""; {\
 		addr, ok := p.UpstreamConfig.DomainEDNSAddr["*."+fqdn]\
 		if ok && fqdn != dctx.Req.Question[0].Name {\
