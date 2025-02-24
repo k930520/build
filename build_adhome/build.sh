@@ -188,14 +188,14 @@ echo clean for $1
 
 rm -rf AdGuardHome
 
-tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
+#tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
 
 go clean -modcache
 }
 
 mkdir build
 
-CHANNEL=(release)
+CHANNEL=(edge beta release)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	if [ "${i}" == "edge" ]; then
