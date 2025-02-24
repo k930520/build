@@ -6,6 +6,12 @@ sudo sed -i '/return dlURL, key, true/i\
 	dlURL = "http://github.home.local/https://github.com/k930520/build/releases/download/adhome/" + strings.Replace(split[len(split)-1], "AdGuardHome", "AdGuardHome_"+u.channel, 1)\
  ' AdGuardHome/internal/updater/check.go
 
+sudo sed -i '/for _, ups := range conf.DomainReservedUpstreams {/i\
+	for _, ups := range conf.IdentifierUpstreams {\
+		insertListResults(ups, results, true)\
+	}\
+ ' AdGuardHome/internal/dnsforward/configvalidator.go
+
 sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
 	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
 		resVal, err := s.dnsFilter.CheckHost(strings.TrimSuffix(host,"."), u, &filtering.Settings{FilteringEnabled: true})\
@@ -41,14 +47,17 @@ sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet 
 sudo sed -i '/"slices"/a\ 	"strings"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
 sudo sed -i '/getUpstreams := (\*UpstreamConfig).getUpstreamsForDomain/i\
-	upstreams, found := p.UpstreamConfig.IdentifierToUpstreams.ipToUpstreams[d.Addr.Addr()]\
+	upstreams, found := p.UpstreamConfig.IdentifierUpstreams[d.Addr.Addr()]\
 	if found {\
 		return upstreams, false\
 	}\
 	ipWithoutZone := d.Addr.Addr().WithZone("")\
-	for pref, upstreams := range p.UpstreamConfig.IdentifierToUpstreams.subnetToUpstreams {\
-		if pref.Contains(ipWithoutZone) {\
-			return upstreams, false\
+	for id, upstreams := range p.UpstreamConfig.IdentifierUpstreams {\
+		switch id.(type) {\
+		case netip.Prefix:\
+			if id.(netip.Prefix).Contains(ipWithoutZone) {\
+				return upstreams, false\
+			}\
 		}\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
@@ -79,31 +88,24 @@ sudo sed -i -e '/if !p.EnableEDNSClientSubnet {/i\
 
 sudo sed -i '/"maps"/a\ 	"net/netip"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/type UpstreamConfig struct {/i\
-type IdentifierToUpstreams struct {\
-	ipToUpstreams map[netip.Addr][]upstream.Upstream\
-	subnetToUpstreams map[netip.Prefix][]upstream.Upstream\
-}\
-' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
-
 sudo sed -i '/type UpstreamConfig struct {/a\
 	DomainEDNSAddr map[string]netip.Addr\
-	IdentifierToUpstreams IdentifierToUpstreams\
+	IdentifierUpstreams map[any][]upstream.Upstream\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/logger \*slog.Logger/a\
 	domainEDNSAddr map[string]netip.Addr\
-	identifierToUpstreams IdentifierToUpstreams\
+	identifierUpstreams map[any][]upstream.Upstream\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/logger:                   opts.Logger,/a\
 	domainEDNSAddr:           map[string]netip.Addr{},\
-	identifierToUpstreams:    IdentifierToUpstreams{ipToUpstreams: map[netip.Addr][]upstream.Upstream{}, subnetToUpstreams: map[netip.Prefix][]upstream.Upstream{}},\
+ 	identifierUpstreams:      map[any][]upstream.Upstream{},\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/Upstreams:                p.upstreams,/a\
 	DomainEDNSAddr:           p.domainEDNSAddr,\
-	IdentifierToUpstreams:    p.identifierToUpstreams,
+	IdentifierUpstreams:      p.identifierUpstreams,\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i 's/upstreams, domains, err := splitConfigLine(confLine)/upstreams, domains, err := p.splitConfigLine(confLine)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
@@ -167,10 +169,10 @@ sudo sed -i '/if strings.HasPrefix(host, "\*.") {/i\
 sudo sed -i '/p.domainReservedUpstreams\[host\] = append(p.domainReservedUpstreams\[host\], dnsUpstream)/a\
 		case netip.Addr:\
 			host := host.(netip.Addr)\
-			p.identifierToUpstreams.ipToUpstreams[host] = append(p.identifierToUpstreams.ipToUpstreams[host], dnsUpstream)\
+			p.identifierUpstreams[host] = append(p.identifierUpstreams[host], dnsUpstream)\
 		case netip.Prefix:\
 			host := host.(netip.Prefix)\
-			p.identifierToUpstreams.subnetToUpstreams[host] = append(p.identifierToUpstreams.subnetToUpstreams[host], dnsUpstream)\
+			p.identifierUpstreams[host] = append(p.identifierUpstreams[host], dnsUpstream)\
 		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
