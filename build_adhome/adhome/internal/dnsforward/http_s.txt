@@ -1,5 +1,0 @@
-		upstreams, err := pretreatmentUpstream(*req.Upstreams, nil)
-		if err != nil {
-			return err
-		}
-		uc, err = proxy.ParseUpstreamsConfig(upstreams, opts)
