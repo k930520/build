@@ -110,20 +110,20 @@ sudo sed -i 's/upstreams, domains, err := splitConfigLine(confLine)/upstreams, d
 
 sudo sed -i 's/func splitConfigLine(confLine string) (upstreams, domains \[\]string, err error)/func (p *configParser) splitConfigLine(confLine string) (upstreams []string, domains []any, err error)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i 's/strings.HasPrefix(confLine, "[/")/strings.HasPrefix(confLine, "[\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/strings.HasPrefix(confLine, "\[\/")/strings.HasPrefix(confLine, "[\\\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i 's/domainsLine, upstreamsLine, found := strings.Cut(confLine\[len("[/"):\], "/]")/domainsLine, upstreamsLine, found := strings.Cut(confLine[len("[\\"):], "\\]")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/domainsLine, upstreamsLine, found := strings.Cut(confLine\[len("\[\/"):\], "\/\]")/domainsLine, upstreamsLine, found := strings.Cut(confLine[len("[\\\\"):], "\\\\]")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i 's/_, confHost := range strings.Split(domainsLine, "/")/_, confHost := range strings.Split(domainsLine, "\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/_, confHost := range strings.Split(domainsLine, "\/")/_, confHost := range strings.Split(domainsLine, "\\\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\\") {/a\
+sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\\\\") {/a\
 		confHost, addrStr, fond := strings.Cut(confHost, "|")\
 		if fond && (confHost == "" || addrStr == "") {\
 			return nil, nil, errors.New("wrong upstream format")\
 		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/host := strings.TrimPrefix(confHost, "*.")/i\
+sudo sed -i '/host := strings.TrimPrefix(confHost, "\*.")/i\
 		if ip, err := netip.ParseAddr(confHost); err == nil {\
 			domains = append(domains, ip)\
 			continue\
@@ -134,7 +134,7 @@ sudo sed -i '/host := strings.TrimPrefix(confHost, "*.")/i\
 		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/domains = append(domains, strings.ToLower(confHost+"\."))/i\
+sudo sed -i '/domains = append(domains, strings.ToLower(confHost+"."))/i\
 		addr, err := netip.ParseAddr(addrStr)\
 		if err != nil {\
 			return nil, nil, err\
@@ -146,7 +146,7 @@ sudo sed -i 's/func (p \*configParser) specifyUpstream(domains \[\]string, u str
 
 sudo sed -i 's/func (p \*configParser) excludeFromReserved(domains \[\]string)/func (p *configParser) excludeFromReserved(domains []any)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/if trimmed := strings.TrimPrefix(host, "*."); trimmed != host {/i\
+sudo sed -i '/if trimmed := strings.TrimPrefix(host, "\*."); trimmed != host {/i\
 		switch host.(type) {\
 		case string:\
 			host := host.(string)\
@@ -156,9 +156,9 @@ sudo sed -i '/p.specifiedDomainUpstreams\[host\] = nil/a\
 		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i 's/func (p \*configParser) includeToReserved(dnsUpstream upstream.Upstream, domains []string)/func (p *configParser) includeToReserved(dnsUpstream upstream.Upstream, domains []any)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/func (p \*configParser) includeToReserved(dnsUpstream upstream.Upstream, domains \[\]string)/func (p *configParser) includeToReserved(dnsUpstream upstream.Upstream, domains []any)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/if strings.HasPrefix(host, "*.") {/i\
+sudo sed -i '/if strings.HasPrefix(host, "\*.") {/i\
 		switch host.(type) {\
 		case string:\
 			host := host.(string)\
