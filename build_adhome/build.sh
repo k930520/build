@@ -108,48 +108,29 @@ sudo sed -i '/Upstreams:                p.upstreams,/a\
 
 sudo sed -i 's/upstreams, domains, err := splitConfigLine(confLine)/upstreams, domains, err := p.splitConfigLine(confLine)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i 's/func splitConfigLine/func (p *configParser) splitConfigLine/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/func splitConfigLine(confLine string) (upstreams, domains \[\]string, err error)/func (p *configParser) splitConfigLine(confLine string) (upstreams []string, domains []any, err error)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/upstreams\[0\] == "#" && len(domains) > 0/i\
-	if upstreams == nil {\
-		return nil\
-	}\
-' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/strings.HasPrefix(confLine, "[/")/strings.HasPrefix(confLine, "[\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/strings.HasPrefix(confLine, "\[\/")/i\
-	argsLine, upstreamsLine, found := strings.Cut(confLine[len("[@"):], "@]")\
-	if found && upstreamsLine != "" {\
-		idUpstreams := []upstream.Upstream{}\
-		for _, u := range strings.Fields(upstreamsLine) {\
-			if u != "#" {\
-				dnsUpstream, err := upstream.AddressToUpstream(u, p.options.Clone())\
-				if err != nil {\
-					return nil, nil, fmt.Errorf("cannot prepare the upstream: %s", err)\
-				}\
-				idUpstreams = append(idUpstreams, dnsUpstream)\
-			}\
-		}\
-		for _, confID := range strings.Split(argsLine, "@") {\
-			if confID == "" {\
-				return nil, nil, errors.Error("wrong upstream format")\
-			}\
-			if ip, err := netip.ParseAddr(confID); err == nil {\
-				p.identifierToUpstreams.ipToUpstreams[ip] = idUpstreams\
-				continue\
-			}\
-			if subnet, err := netip.ParsePrefix(confID); err == nil {\
-				p.identifierToUpstreams.subnetToUpstreams[subnet] = idUpstreams\
-				continue\
-			}\
-		}\
-		return nil, nil, nil\
-	}\
-' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+sudo sed -i 's/domainsLine, upstreamsLine, found := strings.Cut(confLine\[len("[/"):\], "/]")/domainsLine, upstreamsLine, found := strings.Cut(confLine[len("[\\"):], "\\]")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\/") {/a\
+sudo sed -i 's/_, confHost := range strings.Split(domainsLine, "/")/_, confHost := range strings.Split(domainsLine, "\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\\") {/a\
 		confHost, addrStr, fond := strings.Cut(confHost, "|")\
 		if fond && (confHost == "" || addrStr == "") {\
 			return nil, nil, errors.New("wrong upstream format")\
+		}\
+  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i '/host := strings.TrimPrefix(confHost, "*.")/i\
+		if ip, err := netip.ParseAddr(confHost); err == nil {\
+			domains = append(domains, ip)\
+			continue\
+		}\
+		if subnet, err := netip.ParsePrefix(confHost); err == nil {\
+			domains = append(domains, subnet)\
+			continue\
 		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
@@ -159,6 +140,38 @@ sudo sed -i '/domains = append(domains, strings.ToLower(confHost+"\."))/i\
 			return nil, nil, err\
 		}\
 		p.domainEDNSAddr[strings.ToLower(confHost+".")] = addr\
+  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i 's/func (p \*configParser) specifyUpstream(domains \[\]string, u string, idx int) (err error)/func (p *configParser) specifyUpstream(domains []any, u string, idx int) (err error)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i 's/func (p \*configParser) excludeFromReserved(domains \[\]string)/func (p *configParser) excludeFromReserved(domains []any)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i '/if trimmed := strings.TrimPrefix(host, "*."); trimmed != host {/i\
+		switch host.(type) {\
+		case string:\
+			host := host.(string)\
+  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i '/p.specifiedDomainUpstreams\[host\] = nil/a\
+		}\
+  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i 's/func (p \*configParser) includeToReserved(dnsUpstream upstream.Upstream, domains []string)/func (p *configParser) includeToReserved(dnsUpstream upstream.Upstream, domains []any)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i '/if strings.HasPrefix(host, "*.") {/i\
+		switch host.(type) {\
+		case string:\
+			host := host.(string)\
+  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
+
+sudo sed -i '/p.domainReservedUpstreams\[host\] = append(p.domainReservedUpstreams\[host\], dnsUpstream)/a\
+		case netip.Addr:\
+			host := host.(netip.Addr)\
+			p.identifierToUpstreams.ipToUpstreams[host] = append(p.identifierToUpstreams.ipToUpstreams[host], dnsUpstream)\
+		case netip.Prefix:\
+			host := host.(netip.Prefix)\
+			p.identifierToUpstreams.subnetToUpstreams[host] = append(p.identifierToUpstreams.subnetToUpstreams[host], dnsUpstream)\
+		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
