@@ -132,8 +132,8 @@ sudo sed -i 's/domainsLine, upstreamsLine, found := strings.Cut(confLine\[len("\
 sudo sed -i 's/_, confHost := range strings.Split(domainsLine, "\/")/_, confHost := range strings.Split(domainsLine, "\\\\")/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i '/for _, confHost := range strings.Split(domainsLine, "\\\\") {/a\
-		confHost, addrStr, fond := strings.Cut(confHost, "|")\
-		if fond && (confHost == "" || addrStr == "") {\
+		confHost, addrStr, found := strings.Cut(confHost, "|")\
+		if found && (confHost == "" || addrStr == "") {\
 			return nil, nil, errors.New("wrong upstream format")\
 		}\
   ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
