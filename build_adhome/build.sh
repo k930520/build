@@ -30,6 +30,13 @@ sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (
 	}\
  ' AdGuardHome/internal/dnsforward/dnsforward.go
 
+sudo sed -i '/if s.conf.AAAADisabled && qt == dns.TypeAAAA {/i\
+	if err := netutil.ValidateDomainName(strings.TrimSuffix(q.Name, ".")); err != nil {\
+		pctx.Res = s.NewMsgNODATA(pctx.Req)\
+		return resultCodeFinish\
+	}\
+ ' AdGuardHome/internal/dnsforward/process.go
+
 cd AdGuardHome
 
 #tar -czvf ../build/AdGuardHome.tar.gz internal/*
