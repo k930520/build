@@ -26,7 +26,7 @@ FetchWebRelease() {
   cd alist-web
   sed -i 's/Aliyundrive(Open)/Aliyundrive(Open|Share)/' src/pages/home/previews/index.ts
   unzip zh-CN.zip
-  sed -i '/"AliyundriveShare"/,/}/{/"root_folder_id"/d;}' src/lang/zh-CN/drivers.json
+  jq -i 'del(.AliyundriveShare.root_folder_id)' src/lang/zh-CN/drivers.json
   sed -i '/^  "AliyundriveShare".*: {$/r drivers.txt' src/lang/zh-CN/drivers.json
   pnpm install
   node ./scripts/i18n.mjs
