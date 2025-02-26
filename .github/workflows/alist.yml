@@ -67,7 +67,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install upx
+          sudo apt install upx jq
       - name: Build
         env:
           github_token: ${{ secrets.MY_TOKEN }}
