@@ -3,6 +3,5 @@
     "client_secret": "客户端密钥",
     "client_secret-tips": "如果你没有，请留空",
     "oauth_token_url": "Oauth令牌链接",
-    "root_folder_id": "暂存文件夹ID",
     "open_refresh_token": "Open刷新令牌",
     "shares": "分享链接",
