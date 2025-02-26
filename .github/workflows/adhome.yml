@@ -1,0 +1,63 @@
+name: adhome
+
+on:
+  schedule:
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+
+jobs:
+  delete-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete tag and release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: adhome
+          github_token: ${{ secrets.MY_TOKEN }}
+          delete_release: true
+          repo: k930520/build
+
+  build-adhome:
+    if: ${{ always() }}
+    needs: delete-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Build
+        run: |
+          sudo apt-get update && sudo apt-get install -y git upx
+          bash build_adhome/build.sh
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          tag_name: adhome
+          files: build/*
+          prerelease: false
+          
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          repository: k930520/build
+          older-than-seconds: 172800
+          

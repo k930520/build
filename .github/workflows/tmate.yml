@@ -1,0 +1,44 @@
+name: tmate
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  build-tmate:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Build
+        run: |
+          sudo apt-get update && sudo apt-get install -y qemu-user-static debootstrap git
+          
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          tag_name: tmate.${{ github.run_number }}
+          files: tmate/*
+          prerelease: false
+          
+      - name: Delete workflow runs
+        uses: MajorScruffy/delete-old-workflow-runs@v0.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          repository: k930520/build
+          status: completed
+          
