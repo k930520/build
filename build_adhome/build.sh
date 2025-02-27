@@ -39,7 +39,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 
 sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
 	prx.AAAADisabled = s.conf.AAAADisabled\
- /' AdGuardHome/internal/dnsforward/process.go
+ ' AdGuardHome/internal/dnsforward/process.go
 
 cd AdGuardHome
 
