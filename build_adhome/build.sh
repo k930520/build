@@ -30,10 +30,28 @@ sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (
 	}\
  ' AdGuardHome/internal/dnsforward/dnsforward.go
 
-sudo sed -i '/if s.conf.AAAADisabled && qt == dns.TypeAAAA {/i\
+sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 	if err := netutil.ValidateDomainName(strings.TrimSuffix(q.Name, ".")); err != nil {\
 		pctx.Res = s.NewMsgNODATA(pctx.Req)\
 		return resultCodeFinish\
+	}\
+ ' AdGuardHome/internal/dnsforward/process.go
+
+sudo sed -i 's/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/\
+	dctx.err = prx.Resolve(pctx)\
+	if dctx.err != nil {\
+ /' AdGuardHome/internal/dnsforward/process.go
+
+sudo sed -i '/dctx\.err = prx\.Resolve(pctx)/i\
+	if s.conf.AAAADisabled && req.Question[0].Qtype == dns.TypeA {\
+		req.Question[0].Qtype = dns.TypeAAAA\
+	}\
+ ' AdGuardHome/internal/dnsforward/process.go
+
+sudo sed -i '/dctx\.err = prx\.Resolve(pctx)/a\
+	if s.conf.AAAADisabled && pctx.Res.Answer == nil && req.Question[0].Qtype == dns.TypeAAAA {\
+		req.Question[0].Qtype = dns.TypeA\
+		dctx.err = prx.Resolve(pctx)\
 	}\
  ' AdGuardHome/internal/dnsforward/process.go
 
