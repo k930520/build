@@ -37,23 +37,9 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 	}\
  ' AdGuardHome/internal/dnsforward/process.go
 
-sudo sed -i 's/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/\
-	dctx.err = prx.Resolve(pctx)\
-	if dctx.err != nil {\
+sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
+	prx.AAAADisabled = s.conf.AAAADisabled\
  /' AdGuardHome/internal/dnsforward/process.go
-
-sudo sed -i '/dctx\.err = prx\.Resolve(pctx)/i\
-	if s.conf.AAAADisabled && req.Question[0].Qtype == dns.TypeA {\
-		req.Question[0].Qtype = dns.TypeAAAA\
-	}\
- ' AdGuardHome/internal/dnsforward/process.go
-
-sudo sed -i '/dctx\.err = prx\.Resolve(pctx)/a\
-	if s.conf.AAAADisabled && pctx.Res.Answer == nil && req.Question[0].Qtype == dns.TypeAAAA {\
-		req.Question[0].Qtype = dns.TypeA\
-		dctx.err = prx.Resolve(pctx)\
-	}\
- ' AdGuardHome/internal/dnsforward/process.go
 
 cd AdGuardHome
 
@@ -68,6 +54,8 @@ echo dnsproxy is $dnsproxy
 sudo sed -i '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
 
 sudo sed -i -e '/c.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet = c.items/;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
+
+sudo sed -i '/PreferIPv6 bool/a\	AAAADisabled bool' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/config.go
 
 sudo sed -i '/"slices"/a\ 	"strings"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
@@ -115,6 +103,28 @@ sudo sed -i '/dctx.calcFlagsAndSize()/i\
 		_, fqdn, _ = strings.Cut(fqdn, ".")\
 	}\
  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+
+sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/i\
+	if p.AAAADisabled && req.Question[0].Qtype == dns.TypeA {\
+		req.Question[0].Qtype = dns.TypeAAAA\
+	}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+
+sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
+	if p.AAAADisabled && req.Question[0].Qtype == dns.TypeAAAA {\
+		if ok := func() bool {\
+			for _, rr := range resp.Answer {\
+				if _, ok := rr.(*dns.AAAA); ok {\
+					return true\
+				}\
+			}\
+			return false\
+		}(); !ok || resp.Answer == nil {\
+			req.Question[0].Qtype = dns.TypeA\
+			resp, u, err = p.exchangeUpstreams(req, wrapped)\
+		}\
+	}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
 sudo sed -i -e '/if p.Config.EnableEDNSClientSubnet && d.ReqECS != nil {/i\
 	if d.hasEDNS0 && d.ReqECS != nil {\
