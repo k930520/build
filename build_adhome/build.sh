@@ -126,6 +126,12 @@ sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
+sudo sed -i '/unwrapped, stats := collectQueryStats(p\.UpstreamMode, u, wrapped, wrappedFallbacks)/i\
+	if p.AAAADisabled && req.Question[0].Qtype == dns.TypeAAAA {\
+		req.Question[0].Qtype = dns.TypeA\
+	}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+
 sudo sed -i -e '/if p.Config.EnableEDNSClientSubnet && d.ReqECS != nil {/i\
 	if d.hasEDNS0 && d.ReqECS != nil {\
  ' -e '//d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
