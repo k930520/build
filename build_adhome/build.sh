@@ -35,14 +35,13 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 		pctx.Res = s.NewMsgNODATA(pctx.Req)\
 		return resultCodeFinish\
 	}\
-	if s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled && qt == dns.TypeA {\
-		pctx.Res = s.NewMsgNODATA(pctx.Req)\
-		return resultCodeFinish\
-	}\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
-	prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled\
+	if prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled; prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeA {\
+		pctx.Res = s.NewMsgNODATA(pctx.Req)\
+		return resultCodeFinish\
+	}\
  ' AdGuardHome/internal/dnsforward/process.go
 
 cd AdGuardHome
