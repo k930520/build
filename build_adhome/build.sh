@@ -38,7 +38,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
-	if prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled; prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA {\
+	if prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled; prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeA {\
 		pctx.Res = s.NewMsgNODATA(pctx.Req)\
 		return resultCodeFinish\
 	}\
@@ -129,16 +129,18 @@ sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
-sudo sed -i '/unwrapped, stats := collectQueryStats(p\.UpstreamMode, u, wrapped, wrappedFallbacks)/i\
-	if p.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA {\
-		req.Question[0].Qtype = dns.TypeA\
-		resp.Question[0].Qtype = dns.TypeA\
-	}\
-' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+sudo sed -i '/"slices"/a\	"github.com/miekg/dns"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
 
 sudo sed -i -e '/if p.Config.EnableEDNSClientSubnet && d.ReqECS != nil {/i\
 	if d.hasEDNS0 && d.ReqECS != nil {\
  ' -e '//d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
+
+sudo sed -i '/ci, expired, key = dctxCache\.get(d\.Req)/a\
+		if ci == nil {\
+			d.Req.Question[0].Qtype = dns.TypeA\
+			ci, expired, key = dctxCache.get(d.Req)\
+		}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
 
 sudo sed -i -e '/if !p.EnableEDNSClientSubnet {/i\
 	if !d.hasEDNS0 {\
