@@ -38,7 +38,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
-	if prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled; prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeA {\
+	if prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled; prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA {\
 		pctx.Res = s.NewMsgNODATA(pctx.Req)\
 		return resultCodeFinish\
 	}\
@@ -107,6 +107,12 @@ sudo sed -i '/dctx.calcFlagsAndSize()/i\
 	}\
  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
+sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/i\
+	if p.AAAAEnabled && req.Question[0].Qtype == dns.TypeA {\
+		req.Question[0].Qtype = dns.TypeAAAA\
+	}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
+
 sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
 	if p.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA {\
 		if ok := func() bool {\
@@ -124,9 +130,9 @@ sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
 sudo sed -i '/unwrapped, stats := collectQueryStats(p\.UpstreamMode, u, wrapped, wrappedFallbacks)/i\
-	if p.AAAAEnabled && req.Question[0].Qtype == dns.TypeA {\
-		req.Question[0].Qtype = dns.TypeAAAA\
-		resp.Question[0].Qtype = dns.TypeAAAA\
+	if p.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA {\
+		req.Question[0].Qtype = dns.TypeA\
+		resp.Question[0].Qtype = dns.TypeA\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
