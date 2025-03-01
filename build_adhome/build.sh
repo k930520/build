@@ -175,7 +175,7 @@ sudo sed -i '/logger:                   opts\.Logger,/a\
 
 sudo sed -i '/Upstreams:                p\.upstreams,/a\
 	ToEDNSAddr:               p.toEDNSAddr,\
-	ToUpstreams:      p.identifierUpstreams,\
+	ToUpstreams:      p.toUpstreams,\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
 sudo sed -i 's/upstreams, domains, err := splitConfigLine(confLine)/upstreams, domains, err := p.splitConfigLine(confLine)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
