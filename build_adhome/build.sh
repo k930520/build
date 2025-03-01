@@ -7,7 +7,7 @@ sudo sed -i '/return dlURL, key, true/i\
  ' AdGuardHome/internal/updater/check.go
 
 sudo sed -i '/for _, ups := range conf\.DomainReservedUpstreams {/i\
-	for _, ups := range conf.IdentifierUpstreams {\
+	for _, ups := range conf.ToUpstreams {\
 		insertListResults(ups, results, true)\
 	}\
  ' AdGuardHome/internal/dnsforward/configvalidator.go
