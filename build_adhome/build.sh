@@ -126,7 +126,7 @@ sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
-sudo sed -i '/unwrapped, stats := collectQueryStats(p.UpstreamMode, u, wrapped, wrappedFallbacks)/i\
+sudo sed -i '/unwrapped, stats := collectQueryStats(p\.UpstreamMode, u, wrapped, wrappedFallbacks)/i\
 	if p.AAAADisabled && req.Question[0].Qtype == dns.TypeAAAA {\
 		req.Question[0].Qtype = dns.TypeA\
 		resp.Question[0].Qtype = dns.TypeA\
