@@ -38,7 +38,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
-	prx.AAAAEnabled = s.conf.BootstrapPreferIPv6 && !s.conf.AAAADisabled\
+	prx.AAAAEnabled = s.conf.CacheOptimistic && !s.conf.AAAADisabled\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/dctx\.responseFromUpstream = true/i\
@@ -119,13 +119,19 @@ sudo sed -i '/addDO(dctx\.Req)/i\
  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
 sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/i\
-	if p.cacheWorks(d) && p.AAAAEnabled && req.Question[0].Qtype == dns.TypeA {\
+	b := d.RequestID != 0 && p.AAAAEnabled && p.cacheWorks(d)\
+	p.logger.Info(\
+		"domain", d.Req.Question[0].Name,\
+		"aaaa_enabled", b,\
+		"RequestID", d.RequestID,\
+	)\
+	if b && req.Question[0].Qtype == dns.TypeA {\
 		req.Question[0].Qtype = dns.TypeAAAA\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
 sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
-	if p.cacheWorks(d) && p.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA {\
+	if b && req.Question[0].Qtype == dns.TypeAAAA {\
 		if ok := func() bool {\
 			for _, rr := range resp.Answer {\
 				if _, ok := rr.(*dns.AAAA); ok {\
