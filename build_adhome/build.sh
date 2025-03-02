@@ -148,9 +148,25 @@ sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/a\
 	}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
-sudo sed -i -e '/if p.Config.EnableEDNSClientSubnet && d.ReqECS != nil {/i\
+sudo sed -i '/"slices"/a\	"github.com/miekg/dns"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
+
+sudo sed -i -e '/if p\.Config.EnableEDNSClientSubnet && d\.ReqECS != nil {/i\
 	if d.hasEDNS0 && d.ReqECS != nil {\
  ' -e '//d' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
+
+sudo sed -i '/ci, expired, key = dctxCache\.getWithSubnet(d\.Req, d\.ReqECS)/a\
+		if ci == nil && p.AAAAEnabled && d.Req.Question[0].Qtype == dns.TypeA {\
+			d.Req.Question[0].Qtype = dns.TypeAAAA\
+			ci, expired, key = dctxCache.getWithSubnet(d.Req, d.ReqECS)\
+		}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
+
+sudo sed -i '/ci, expired, key = dctxCache\.get(d\.Req)/a\
+		if ci == nil && p.AAAAEnabled && d.Req.Question[0].Qtype == dns.TypeA {\
+			d.Req.Question[0].Qtype = dns.TypeAAAA\
+			ci, expired, key = dctxCache.get(d.Req)\
+		}\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
 
 sudo sed -i -e '/if !p\.EnableEDNSClientSubnet {/i\
 	if !d.hasEDNS0 {\
