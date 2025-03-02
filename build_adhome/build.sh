@@ -32,7 +32,7 @@ sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (
 
 sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 	if err := netutil.ValidateDomainName(strings.TrimSuffix(q.Name, ".")); err != nil {\
-		pctx.Res = s.reply(req, dns.RcodeSuccess)\
+		pctx.Res = s.NewMsgNODATA(pctx.Req)\
 		return resultCodeFinish\
 	}\
  ' AdGuardHome/internal/dnsforward/process.go
