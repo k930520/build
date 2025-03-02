@@ -118,14 +118,6 @@ sudo sed -i '/dctx\.calcFlagsAndSize()/i\
 	}\
  ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
-sudo sed -i '/Complete the response from cache/i\
-			p.logger.Info(\
-				"domain", dctx.Req.Question[0].Name,\
-				"req", dctx.Req.Question[0].Qtype,\
-				"res", dctx.Res.Question[0].Qtype,\
-			)\
- ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
-
 sudo sed -i '/addDO(dctx\.Req)/i\
 		if p.AAAAEnabled && dctx.Req.Question[0].Qtype == dns.TypeAAAA {\
 			dctx.Res = nil\
@@ -135,11 +127,6 @@ sudo sed -i '/addDO(dctx\.Req)/i\
 
 sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/i\
 	b := d.RequestID != 0 && p.AAAAEnabled && p.cacheWorks(d)\
-	p.logger.Info(\
-		"domain", d.Req.Question[0].Name,\
-		"req", d.Req.Question[0].Qtype,\
-		"RequestID", d.RequestID,\
-	)\
 	if b && req.Question[0].Qtype == dns.TypeA {\
 		req.Question[0].Qtype = dns.TypeAAAA\
 	}\
