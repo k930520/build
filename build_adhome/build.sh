@@ -137,7 +137,7 @@ sudo sed -i '/resp, u, err := p\.exchangeUpstreams(req, wrapped)/i\
 	b := d.RequestID != 0 && p.AAAAEnabled && p.cacheWorks(d)\
 	p.logger.Info(\
 		"domain", d.Req.Question[0].Name,\
-		"aaaa_enabled", b,\
+		"req", d.Req.Question[0].Qtype,\
 		"RequestID", d.RequestID,\
 	)\
 	if b && req.Question[0].Qtype == dns.TypeA {\
