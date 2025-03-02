@@ -158,6 +158,9 @@ sudo sed -i '/ci, expired, key = dctxCache\.getWithSubnet(d\.Req, d\.ReqECS)/a\
 		if ci == nil && p.AAAAEnabled && d.Req.Question[0].Qtype == dns.TypeA {\
 			d.Req.Question[0].Qtype = dns.TypeAAAA\
 			ci, expired, key = dctxCache.getWithSubnet(d.Req, d.ReqECS)\
+			if ci == nil {\
+				d.Req.Question[0].Qtype = dns.TypeA\
+			}\
 		}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
 
@@ -165,6 +168,9 @@ sudo sed -i '/ci, expired, key = dctxCache\.get(d\.Req)/a\
 		if ci == nil && p.AAAAEnabled && d.Req.Question[0].Qtype == dns.TypeA {\
 			d.Req.Question[0].Qtype = dns.TypeAAAA\
 			ci, expired, key = dctxCache.get(d.Req)\
+			if ci == nil {\
+				d.Req.Question[0].Qtype = dns.TypeA\
+			}\
 		}\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxycache.go
 
