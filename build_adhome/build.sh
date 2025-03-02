@@ -42,7 +42,7 @@ sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/dctx\.responseFromUpstream = true/i\
-	if prx.AAAAEnabled && pctx.Req.Question[0].Qtype == dns.TypeAAAA && pctx.Res == nil {\
+	if prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA && pctx.Res == nil {\
 		pctx.Res = s.reply(req, dns.RcodeSuccess)\
 		return resultCodeFinish\
 	}\
