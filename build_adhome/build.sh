@@ -42,7 +42,7 @@ sudo sed -i '/if dctx\.err = prx\.Resolve(pctx); dctx\.err != nil {/i\
  ' AdGuardHome/internal/dnsforward/process.go
 
 sudo sed -i '/dctx\.responseFromUpstream = true/i\
-	if prx.AAAAEnabled && req.Question[0].Qtype == dns.TypeAAAA && pctx.Res == nil {\
+	if prx.AAAAEnabled && pctx.Res == nil && (req.Question[0].Qtype == dns.TypeA || req.Question[0].Qtype == dns.TypeAAAA) {\
 		pctx.Res = s.reply(req, dns.RcodeSuccess)\
 		return resultCodeFinish\
 	}\
@@ -160,8 +160,7 @@ sudo sed -i '/ci, expired, key = dctxCache\.getWithSubnet(d\.Req, d\.ReqECS)/a\
 			ci, expired, key = dctxCache.getWithSubnet(d.Req, d.ReqECS)\
 			d.Req.Question[0].Qtype = dns.TypeA\
 			if ci != nil {\
-				d.Res = (&dns.Msg{}).SetRcode(d.Req, dns.RcodeSuccess)\
-				d.Res.RecursionAvailable = true\
+				d.Res = nil\
 				return true\
 			}\
 		}\
@@ -173,8 +172,7 @@ sudo sed -i '/ci, expired, key = dctxCache\.get(d\.Req)/a\
 			ci, expired, key = dctxCache.get(d.Req)\
 			d.Req.Question[0].Qtype = dns.TypeA\
 			if ci != nil {\
-				d.Res = (&dns.Msg{}).SetRcode(d.Req, dns.RcodeSuccess)\
-				d.Res.RecursionAvailable = true\
+				d.Res = nil\
 				return true\
 			}\
 		}\
