@@ -51,8 +51,6 @@ sudo sed -i '/if withECS {/d' /home/runner/go/pkg/mod/github.com/\!adguard\!team
 
 sudo sed -i -e '/c\.itemsWithSubnet = createCache(size)/{s/.*/	c.itemsWithSubnet = c.items/;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/cache.go
 
-sudo sed -i '/PreferIPv6 bool/a\	AAAAEnabled bool' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/config.go
-
 sudo sed -i '/"slices"/a\ 	"strings"' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/proxy.go
 
 sudo sed -i '/getUpstreams := (\*UpstreamConfig)\.getUpstreamsForDomain/i\
