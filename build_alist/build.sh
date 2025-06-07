@@ -23,6 +23,7 @@ ldflags="\
 "
 
 FetchWebRelease() {
+  crowdin init
   crowdin download translations -l zh-CN
   ls -l
   cd alist-web
