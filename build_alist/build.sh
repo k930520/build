@@ -161,7 +161,7 @@ BuildReleaseMusl() {
 
 BuildReleaseLinuxMuslArm() {
   muslflags="--extldflags '-static -fpic' $ldflags"
-  BASE="https://musl.cc/"
+  BASE="https://musl.nn.ci/"
   FILES=(armv7l-linux-musleabihf-cross)
   for i in "${FILES[@]}"; do
     url="${BASE}${i}.tgz"
