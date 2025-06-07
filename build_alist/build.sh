@@ -63,6 +63,7 @@ PreBuildRelease() {
 
   sed -i '/stdpath "path"/a\
 	"os"\
+ 	"github.com/alist-org/alist/v3/internal/setting"\
 	"github.com/alist-org/alist/v3/pkg/aria2/rpc"\
   ' internal/fs/copy.go
 
