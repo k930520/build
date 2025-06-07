@@ -138,7 +138,7 @@ PreBuildRelease() {
 BuildReleaseMusl() {
   muslflags="--extldflags '-static -fpic' $ldflags"
   BASE="https://musl.cc/"
-  FILES=(x86_64-linux-musl-cross x86_64-w64-mingw32-cross)
+  FILES=(x86_64-w64-mingw32-cross)
   for i in "${FILES[@]}"; do
     url="${BASE}${i}.tgz"
     curl -L -o "${i}.tgz" "${url}"
