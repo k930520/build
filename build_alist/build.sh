@@ -22,7 +22,7 @@ ldflags="\
 -X 'github.com/alist-org/alist/v3/internal/conf.WebVersion=$webVersion' \
 "
 
-crowdin init \
+sudo crowdin init \
   --base-path "." \
   --base-url "https://api.crowdin.com" \
   -i "CROWDIN_PROJECT_ID" \
