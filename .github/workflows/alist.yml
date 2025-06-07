@@ -68,14 +68,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install upx
-          wget https://artifacts.crowdin.com/repo/deb/crowdin.deb -O crowdin.deb
-          sudo dpkg -i crowdin.deb
           
       - name: Build
         env:
           github_token: ${{ secrets.MY_TOKEN }}
-          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
-          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
         run: |
           bash build_alist/build.sh release
           
