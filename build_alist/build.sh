@@ -63,35 +63,35 @@ PreBuildRelease() {
 
   sed -i '/stdpath "path"/a\
 	"os"\
-	"github.com/alist-org/alist/v3/internal/offline_download/aria2"\
-	"github.com/alist-org/alist/v3/internal/offline_download/tool"\
+	"github.com/alist-org/alist/v3/pkg/aria2/rpc"\
   ' internal/fs/copy.go
 
   sed -i -e '/return errors\.WithMessagef(err, "failed get \[\%s\] link", srcFilePath)/{n;d;}' internal/fs/copy.go
 
   sed -i -e '/return errors\.WithMessagef(err, "failed get \[\%s\] link", srcFilePath)/a\
 	}\
-	_aria2 := aria2.Aria2{}\
-	_, err = _aria2.Init()\
+	uri := setting.GetStr(conf.Aria2Uri)\
+	secret := setting.GetStr(conf.Aria2Secret)\
+	client, err := rpc.New(context.Background(), uri, secret, 4*time.Second, &rpc.DummyNotifier{})\
+	_, err = client.GetVersion()\
 	if err != nil {\
   ' internal/fs/copy.go
 
   sed -i -e '/return op\.Put(tsk\.Ctx(), dstStorage, dstDirPath, ss, tsk\.SetProgress, true)/a\
 	} else {\
-		gid, err := _aria2.AddURL(&tool.AddUrlArgs{\
-			Url:     link.URL,\
-			Out:     stdpath.Base(srcFilePath),\
-			TempDir: conf.Conf.TempDir,\
+		gid, err := client.AddURI([]string{link.URL}, map[string]interface{}{\
+			"dir": conf.Conf.TempDir,\
+			"out": stdpath.Base(srcFilePath),\
 		})\
 		if err != nil {\
 			return err\
 		}\
 		for {\
-			status, err := _aria2.Status(&tool.DownloadTask{GID: gid})\
+			info, err := client.TellStatus(gid)\
 			if err != nil {\
 				return err\
 			}\
-			if status.Completed {\
+			if info.Status == "complete" {\
 				tempFile := stdpath.Join(conf.Conf.TempDir, stdpath.Base(srcFilePath))\
 				rc, err := os.Open(tempFile)\
 				if err != nil {\
@@ -123,14 +123,6 @@ PreBuildRelease() {
 		}\
 	}\
   ' internal/fs/copy.go
-
-  sed -i '/"dir": args\.TempDir,/a\
-		"out": args.Out,\
-  ' internal/offline_download/aria2/aria2.go
-
-  sed -i '/UID     string/a\
-	Out     string\
-  ' internal/offline_download/tool/base.go
   
   go mod tidy
 }
