@@ -22,9 +22,6 @@ ldflags="\
 -X 'github.com/alist-org/alist/v3/internal/conf.WebVersion=$webVersion' \
 "
 
-crowdin download translations -l zh-CN
-ls -l
-
 FetchWebRelease() {
   cd alist-web
   sed -i 's/Aliyundrive(Open)/Aliyundrive(Open|Share)/' src/pages/home/previews/index.ts
@@ -207,11 +204,11 @@ MakeRelease() {
 }
 
 if [ "$1" = "release" ]; then
-  # FetchWebRelease
-  # PreBuildRelease
-  # BuildReleaseMusl
-  # BuildReleaseLinuxMuslArm
-  # MakeRelease
+  FetchWebRelease
+  PreBuildRelease
+  BuildReleaseMusl
+  BuildReleaseLinuxMuslArm
+  MakeRelease
 else
   echo -e "Parameter error"
 fi
