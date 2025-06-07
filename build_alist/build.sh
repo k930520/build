@@ -23,6 +23,7 @@ ldflags="\
 "
 
 FetchWebRelease() {
+  ls -l
   cd alist-web
   sed -i 's/Aliyundrive(Open)/Aliyundrive(Open|Share)/' src/pages/home/previews/index.ts
   unzip zh-CN.zip
@@ -205,10 +206,10 @@ MakeRelease() {
 
 if [ "$1" = "release" ]; then
   FetchWebRelease
-  PreBuildRelease
-  BuildReleaseMusl
-  BuildReleaseLinuxMuslArm
-  MakeRelease
+  # PreBuildRelease
+  # BuildReleaseMusl
+  # BuildReleaseLinuxMuslArm
+  # MakeRelease
 else
   echo -e "Parameter error"
 fi
