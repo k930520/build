@@ -40,97 +40,97 @@ PreBuildRelease() {
   mkdir -p "build"
   cd alist
   
- #  sed -i '/stdpath "path"/a\
- #  	"regexp"\
-	# "strings"\
- #  ' internal/op/fs.go
+  sed -i '/stdpath "path"/a\
+  	"regexp"\
+	"strings"\
+  ' internal/op/fs.go
   
- #  sed -i '/files, err := storage.List(ctx, dir, args)/i\
-	# 	args.ReqPath = key\
- #  ' internal/op/fs.go
+  sed -i '/files, err := storage.List(ctx, dir, args)/i\
+		args.ReqPath = key\
+  ' internal/op/fs.go
   
- #  sed -i '/log.Debugf("set cache: \%s => \%+v", key, files)/i\
-	# 			reqPath := strings.Split(args.ReqPath, "/")\
-	# 			if storage.GetStorage().Driver == "AliyundriveShare" && (regexp.MustCompile(`^[A-Z0-9]`).MatchString(reqPath[len(reqPath)-1]) || regexp.MustCompile(`^[A-Z0-9]`).MatchString(reqPath[len(reqPath)-2])) {\
-	# 				log.Debugf("set cache: %s => %+v", key, files)\
-	# 				listCache.Set(key, files, cache.WithEx[[]model.Obj](time.Minute*1))\
-	# 			} else {\
- #  ' internal/op/fs.go
+  sed -i '/log.Debugf("set cache: \%s => \%+v", key, files)/i\
+				reqPath := strings.Split(args.ReqPath, "/")\
+				if storage.GetStorage().Driver == "AliyundriveShare" && (regexp.MustCompile(`^[A-Z0-9]`).MatchString(reqPath[len(reqPath)-1]) || regexp.MustCompile(`^[A-Z0-9]`).MatchString(reqPath[len(reqPath)-2])) {\
+					log.Debugf("set cache: %s => %+v", key, files)\
+					listCache.Set(key, files, cache.WithEx[[]model.Obj](time.Minute*1))\
+				} else {\
+  ' internal/op/fs.go
   
- #  sed -i '/listCache\.Set(key, files, cache\.WithEx\[\[\]model.Obj\](time\.Minute\*time\.Duration(storage\.GetStorage()\.CacheExpiration)))/a\
-	# 			}\
- #  ' internal/op/fs.go
+  sed -i '/listCache\.Set(key, files, cache\.WithEx\[\[\]model.Obj\](time\.Minute\*time\.Duration(storage\.GetStorage()\.CacheExpiration)))/a\
+				}\
+  ' internal/op/fs.go
 
- #  sed -i '/stdpath "path"/a\
-	# "os"\
-	# "github.com/alist-org/alist/v3/internal/offline_download/aria2"\
-	# "github.com/alist-org/alist/v3/internal/offline_download/tool"\
- #  ' internal/fs/copy.go
+  sed -i '/stdpath "path"/a\
+	"os"\
+	"github.com/alist-org/alist/v3/internal/offline_download/aria2"\
+	"github.com/alist-org/alist/v3/internal/offline_download/tool"\
+  ' internal/fs/copy.go
 
- #  sed -i -e '/return errors\.WithMessagef(err, "failed get \[\%s\] link", srcFilePath)/{n;d;}' internal/fs/copy.go
+  sed -i -e '/return errors\.WithMessagef(err, "failed get \[\%s\] link", srcFilePath)/{n;d;}' internal/fs/copy.go
 
- #  sed -i -e '/return errors\.WithMessagef(err, "failed get \[\%s\] link", srcFilePath)/a\
-	# }\
-	# _aria2 := aria2.Aria2{}\
-	# _, err = _aria2.Init()\
-	# if err != nil {\
- #  ' internal/fs/copy.go
+  sed -i -e '/return errors\.WithMessagef(err, "failed get \[\%s\] link", srcFilePath)/a\
+	}\
+	_aria2 := aria2.Aria2{}\
+	_, err = _aria2.Init()\
+	if err != nil {\
+  ' internal/fs/copy.go
 
- #  sed -i -e '/return op\.Put(tsk\.Ctx(), dstStorage, dstDirPath, ss, tsk\.SetProgress, true)/a\
-	# } else {\
-	# 	gid, err := _aria2.AddURL(&tool.AddUrlArgs{\
-	# 		Url:     link.URL,\
-	# 		Out:     stdpath.Base(srcFilePath),\
-	# 		TempDir: conf.Conf.TempDir,\
-	# 	})\
-	# 	if err != nil {\
-	# 		return err\
-	# 	}\
-	# 	for {\
-	# 		status, err := _aria2.Status(&tool.DownloadTask{GID: gid})\
-	# 		if err != nil {\
-	# 			return err\
-	# 		}\
-	# 		if status.Completed {\
-	# 			tempFile := stdpath.Join(conf.Conf.TempDir, stdpath.Base(srcFilePath))\
-	# 			rc, err := os.Open(tempFile)\
-	# 			if err != nil {\
-	# 				return errors.Wrapf(err, "failed to open file %s")\
-	# 			}\
-	# 			rcInfo, err := rc.Stat()\
-	# 			if err != nil {\
-	# 				return errors.Wrapf(err, "failed get file info %s")\
-	# 			}\
-	# 			ss := &stream.FileStream{\
-	# 				Ctx: tsk.Ctx(),\
-	# 				Obj: &model.Object{\
-	# 					Name:     stdpath.Base(srcFilePath),\
-	# 					Size:     rcInfo.Size(),\
-	# 					Modified: rcInfo.ModTime(),\
-	# 					IsFolder: false,\
-	# 				},\
-	# 				Mimetype: utils.GetMimeType(srcFilePath),\
-	# 				Reader:   rc,\
-	# 				Closers:  utils.NewClosers(rc),\
-	# 			}\
-	# 			err = op.Put(tsk.Ctx(), dstStorage, dstDirPath, ss, tsk.SetProgress)\
-	# 			if err == nil {\
-	# 				os.Remove(tempFile)\
-	# 			}\
-	# 			return err\
-	# 		}\
-	# 		time.Sleep(time.Second * 3)\
-	# 	}\
-	# }\
- #  ' internal/fs/copy.go
+  sed -i -e '/return op\.Put(tsk\.Ctx(), dstStorage, dstDirPath, ss, tsk\.SetProgress, true)/a\
+	} else {\
+		gid, err := _aria2.AddURL(&tool.AddUrlArgs{\
+			Url:     link.URL,\
+			Out:     stdpath.Base(srcFilePath),\
+			TempDir: conf.Conf.TempDir,\
+		})\
+		if err != nil {\
+			return err\
+		}\
+		for {\
+			status, err := _aria2.Status(&tool.DownloadTask{GID: gid})\
+			if err != nil {\
+				return err\
+			}\
+			if status.Completed {\
+				tempFile := stdpath.Join(conf.Conf.TempDir, stdpath.Base(srcFilePath))\
+				rc, err := os.Open(tempFile)\
+				if err != nil {\
+					return errors.Wrapf(err, "failed to open file %s")\
+				}\
+				rcInfo, err := rc.Stat()\
+				if err != nil {\
+					return errors.Wrapf(err, "failed get file info %s")\
+				}\
+				ss := &stream.FileStream{\
+					Ctx: tsk.Ctx(),\
+					Obj: &model.Object{\
+						Name:     stdpath.Base(srcFilePath),\
+						Size:     rcInfo.Size(),\
+						Modified: rcInfo.ModTime(),\
+						IsFolder: false,\
+					},\
+					Mimetype: utils.GetMimeType(srcFilePath),\
+					Reader:   rc,\
+					Closers:  utils.NewClosers(rc),\
+				}\
+				err = op.Put(tsk.Ctx(), dstStorage, dstDirPath, ss, tsk.SetProgress)\
+				if err == nil {\
+					os.Remove(tempFile)\
+				}\
+				return err\
+			}\
+			time.Sleep(time.Second * 3)\
+		}\
+	}\
+  ' internal/fs/copy.go
 
- #  sed -i '/"dir": args\.TempDir,/a\
-	# 	"out": args.Out,\
- #  ' internal/offline_download/aria2/aria2.go
+  sed -i '/"dir": args\.TempDir,/a\
+		"out": args.Out,\
+  ' internal/offline_download/aria2/aria2.go
 
- #  sed -i '/UID     string/a\
-	# Out     string\
- #  ' internal/offline_download/tool/base.go
+  sed -i '/UID     string/a\
+	Out     string\
+  ' internal/offline_download/tool/base.go
   
   go mod tidy
 }
