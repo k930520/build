@@ -22,14 +22,6 @@ ldflags="\
 -X 'github.com/alist-org/alist/v3/internal/conf.WebVersion=$webVersion' \
 "
 
-sudo crowdin init \
-  --base-path "." \
-  --base-url "https://api.crowdin.com" \
-  -i "CROWDIN_PROJECT_ID" \
-  -T "CROWDIN_PERSONAL_TOKEN" \
-  -s "/locales/**/*" \
-  -t "/%two_letters_code%/%original_file_name%" \
-  --preserve-hierarchy
 crowdin download translations -l zh-CN
 ls -l
 
