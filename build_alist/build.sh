@@ -23,6 +23,7 @@ ldflags="\
 "
 
 FetchWebRelease() {
+  crowdin download translations -l zh-CN
   ls -l
   cd alist-web
   sed -i 's/Aliyundrive(Open)/Aliyundrive(Open|Share)/' src/pages/home/previews/index.ts
