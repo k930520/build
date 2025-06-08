@@ -64,14 +64,8 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           submodules: recursive
-
-      - name: Install dependencies
-        run: |
-          sudo apt install upx
           
       - name: Build
-        env:
-          github_token: ${{ secrets.MY_TOKEN }}
         run: |
           bash build_alist/build.sh release
           
