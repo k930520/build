@@ -1,0 +1,7 @@
+    "client_id": "客户端ID",
+    "client_id-tips": "如果你没有，请留空",
+    "client_secret": "客户端密钥",
+    "client_secret-tips": "如果你没有，请留空",
+    "oauth_token_url": "Oauth令牌链接",
+    "open_refresh_token": "Open刷新令牌",
+    "shares": "分享链接",
