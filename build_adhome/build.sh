@@ -39,7 +39,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 
 cd AdGuardHome
 
-#tar -czvf ../build/AdGuardHome.tar.gz internal/dnsforward/*
+tar -czvf ../build/AdGuardHome.tar.gz internal/dnsforward/*
 
 go mod tidy
 
@@ -229,7 +229,7 @@ go clean -modcache
 
 mkdir build
 
-CHANNEL=(edge beta release)
+CHANNEL=(edge)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	if [ "${i}" == "edge" ]; then
