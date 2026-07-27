@@ -39,7 +39,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 
 cd AdGuardHome
 
-#tar -czvf ../build/AdGuardHome.tar.gz internal/*
+tar -czvf ../build/AdGuardHome.tar.gz internal/*
 
 go mod tidy
 
@@ -222,7 +222,7 @@ echo clean for $1
 
 rm -rf AdGuardHome
 
-#tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
+tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
 
 go clean -modcache
 }
