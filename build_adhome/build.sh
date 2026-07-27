@@ -229,7 +229,7 @@ go clean -modcache
 
 mkdir build
 
-CHANNEL=(edge)
+CHANNEL=(edge beta release)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	# if [ "${i}" == "edge" ]; then
