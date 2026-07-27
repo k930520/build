@@ -39,7 +39,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 
 cd AdGuardHome
 
-tar -czvf ../build/AdGuardHome.tar.gz internal/*
+#tar -czvf ../build/AdGuardHome.tar.gz internal/dnsforward/*
 
 go mod tidy
 
@@ -186,7 +186,7 @@ sudo sed -i 's/func (p \*configParser) specifyUpstream(domains \[\]string, u str
 
 sudo sed -i 's/func (p \*configParser) excludeFromReserved(domains \[\]string)/func (p *configParser) excludeFromReserved(domains []any)/' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/upstreams.go
 
-sudo sed -i '/if trimmed := strings\.TrimPrefix(host, "\*."); trimmed != host {/i\
+sudo sed -i '/if trimmed, ok := strings\.CutPrefix(host, "\*."); ok {/i\
 		switch host.(type) {\
 		case string:\
 			host := host.(string)\
@@ -222,7 +222,7 @@ echo clean for $1
 
 rm -rf AdGuardHome
 
-tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
+#tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
 
 go clean -modcache
 }
