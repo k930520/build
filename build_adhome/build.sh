@@ -16,11 +16,11 @@ sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (
 	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
 		resVal, err := s.dnsFilter.CheckHost(strings.TrimSuffix(host,"."), u, &filtering.Settings{FilteringEnabled: true})\
 		if err == nil {\
-			if resVal.Reason.In(filtering.Rewritten) && resVal.CanonName != "" && len(resVal.IPList) == 0 {\
+			if filtering.Rewritten ==resVal.Reason && resVal.CanonName != "" && len(resVal.IPList) == 0 {\
 				host = dns.Fqdn(resVal.CanonName)\
 				break\
 			}\
-			if resVal.Reason.In(filtering.Rewritten) {\
+			if filtering.Rewritten ==resVal.Reason {\
 				addr = append(addr, resVal.IPList...)\
 			}\
 		}\
@@ -39,7 +39,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 
 cd AdGuardHome
 
-tar -czvf ../build/AdGuardHome.tar.gz internal/dnsforward/*
+#tar -czvf ../build/AdGuardHome.tar.gz internal/dnsforward/*
 
 go mod tidy
 
