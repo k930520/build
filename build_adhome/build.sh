@@ -39,7 +39,7 @@ sudo sed -i '/if s\.conf\.AAAADisabled && qt == dns\.TypeAAAA {/i\
 
 cd AdGuardHome
 
-#tar -czvf ../build/AdGuardHome.tar.gz internal/dnsforward/*
+#tar -czvf ../build/$1_dnsforward.tar.gz internal/dnsforward/*
 
 go mod tidy
 
@@ -212,7 +212,7 @@ sudo sed -i '/p\.domainReservedUpstreams\[host\] = append(p\.domainReservedUpstr
 
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
-tar -czvf ../build/static.tar.gz ./build/*
+tar -czvf ../build/$1_static.tar.gz ./build/*
 
 upx -9 dist/AdGuardHome/AdGuardHome
 
@@ -224,22 +224,22 @@ echo clean for $1
 
 rm -rf AdGuardHome
 
-#tar -czvf ./build/dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
+#tar -czvf ./build/$1_dnsproxy.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$dnsproxy/proxy/*
 
 go clean -modcache
 }
 
 mkdir build
 
-CHANNEL=(edge)
+CHANNEL=(edge beta release)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	version=$(wget -qO- -t1 -T2 "https://static.adtidy.org/adguardhome/${i}/version.json" | grep "version" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
 	if [ "${i}" == "edge" ]; then
 		git clone https://github.com/AdguardTeam/AdGuardHome
-		# cd AdGuardHome
-		# git checkout ${version##*+}
-		# cd ../
+		cd AdGuardHome
+		git checkout ${version##*+}
+		cd ../
 	else
 		git clone -b $version https://github.com/AdguardTeam/AdGuardHome
 	fi
