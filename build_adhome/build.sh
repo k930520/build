@@ -212,7 +212,7 @@ sudo sed -i '/p\.domainReservedUpstreams\[host\] = append(p\.domainReservedUpstr
 
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
-tar -czvf ./build/dnsproxy.tar.gz ./build/*
+tar -czvf ../build/static.tar.gz ./build/*
 
 upx -9 dist/AdGuardHome/AdGuardHome
 
