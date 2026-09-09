@@ -231,7 +231,7 @@ go clean -modcache
 
 mkdir build
 
-CHANNEL=(edge beta release)
+CHANNEL=(edge)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
 	version=$(wget -qO- -t1 -T2 "https://static.adtidy.org/adguardhome/${i}/version.json" | grep "version" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
