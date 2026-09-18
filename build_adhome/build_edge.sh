@@ -6,9 +6,9 @@ sudo sed -i '/type DefaultManager struct {/a\
 	CAPair\
 	' AdGuardHome/internal/aghtls/defaultmanager.go
 
-sudo sed -i '/func (mgr *DefaultManager) onGetCertificate(\
-	chi *tls.ClientHelloInfo) (cert *tls.Certificate, err error,\
-) {/i\
+sudo sed -i '/func (mgr \*DefaultManager) onGetCertificate(\
+	chi \*tls.ClientHelloInfo) (cert \*tls.Certificate, err error,\
+) {/a\
 	return mgr.myOnGetCertificate(chi)\
 	' AdGuardHome/internal/aghtls/defaultmanager.go
 
