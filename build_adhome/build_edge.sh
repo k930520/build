@@ -14,6 +14,10 @@ sudo sed -i '/func (mgr *DefaultManager) onGetCertificate(\
 
 sudo sed -i '/	err = validateCertificates(/c\	err = myValidateCertificates(' AdGuardHome/internal/aghtls/defaultmanager.go
 
+sudo sed -i '/type Server struct {/a\
+	Transport *transport.Transport\
+	' AdGuardHome/internal/dnsforward/dnsforward.go
+
 sudo sed -i '/		s.processFilteringBeforeRequest,/c\		s.myProcessFilteringBeforeRequest,' AdGuardHome/internal/dnsforward/requesthandler.go
 
 sudo sed -i '/type Result struct {/a\
