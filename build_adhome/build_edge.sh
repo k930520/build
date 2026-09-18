@@ -25,27 +25,26 @@ sudo sed -i '/		shouldContinue := web.serveTLS(ctx)/c\		shouldContinue := web.my
 
 sudo sed -i '/		return dlURL, key, true/c\		return u.getDlURL(dlURL), key, true' AdGuardHome/internal/updater/check.go
 
+cd AdGuardHome
+
+go mod tidy
+
 urlfilter=$(ls /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep urlfilter)
 
 echo urlfilter is $urlfilter
 
-sudo cp -r build_adhome/urlfilter/rules /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules
+sudo cp -r ../build_adhome/urlfilter/rules /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules
 
 sudo sed -i '/type NetworkRule struct {/a\
 	            	ECS          string\
 	            	TransportOpt \*TransportOpt\
               ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
-cd AdGuardHome
-
-tar -czvf ../build/$1_internal.tar.gz internal/*
-tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
-
-go mod tidy
-
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
 tar -czvf ../build/$1_static.tar.gz ./build/*
+tar -czvf ../build/$1_internal.tar.gz internal/*
+tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
 
 upx -9 dist/AdGuardHome/AdGuardHome
 
