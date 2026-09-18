@@ -79,7 +79,7 @@ sudo tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$
 
 sudo tar -czvf ../build/$1_static.tar.gz build/*
 sudo tar -czvf ../build/$1_internal.tar.gz internal/*
-sudo tar -czvf ../build/$1_urlfilter.tar.gz home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
+sudo tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
 
 cd ../
 
