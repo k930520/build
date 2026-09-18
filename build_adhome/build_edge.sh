@@ -2,20 +2,20 @@ BuildAdGuardHome() {
 
 sudo cp -r build_adhome/AdGuardHome AdGuardHome
 
-sudo sed -i '/func (mgr \*DefaultManager) onGetCertificate(\
-             	chi \*tls.ClientHelloInfo) (cert \*tls.Certificate, err error,\
-             ) {/i\
-             	return mgr.myOnGetCertificate(chi)\
-             	' AdGuardHome/internal/aghtls/defaultmanager.go
+sudo sed -i '/func (mgr *DefaultManager) onGetCertificate(\
+	chi *tls.ClientHelloInfo) (cert *tls.Certificate, err error,\
+) {/i\
+	return mgr.myOnGetCertificate(chi)\
+	' AdGuardHome/internal/aghtls/defaultmanager.go
 
 sudo sed -i '/	err = validateCertificates(/c\	err = myValidateCertificates(' AdGuardHome/internal/aghtls/defaultmanager.go
 
 sudo sed -i '/		s.processFilteringBeforeRequest,/c\		s.myProcessFilteringBeforeRequest,' AdGuardHome/internal/dnsforward/requesthandler.go
 
 sudo sed -i '/type Result struct {/a\
-	            	ReqECS       string\
-              	TransportOpt \*rules.TransportOpt\
-              ' AdGuardHome/internal/filtering/result.go
+	ReqECS       string\
+	TransportOpt \*rules.TransportOpt\
+	' AdGuardHome/internal/filtering/result.go
 
 sudo sed -i '/	dnsRWRes := d.processDNSResultRewrites(dnsres, host)/c\	dnsRWRes := d.myProcessDNSResultRewrites(dnsres, host)' AdGuardHome/internal/filtering/filtering.go
 
@@ -36,25 +36,25 @@ echo urlfilter is $urlfilter
 sudo cp -r ../build_adhome/urlfilter/rules /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules
 
 sudo sed -i '/type NetworkRule struct {/a\
-	            	ECS          string\
-	            	TransportOpt \*TransportOpt\
-              ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
+	ECS          string\
+	TransportOpt \*TransportOpt\
+	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
-tar -czvf ../build/$1_static.tar.gz ./build/*
-tar -czvf ../build/$1_internal.tar.gz internal/*
-tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
+sudo tar -czvf ../build/$1_static.tar.gz ./build/*
+sudo tar -czvf ../build/$1_internal.tar.gz ./internal/*
+sudo tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
 
-upx -9 dist/AdGuardHome/AdGuardHome
+sudo upx -9 dist/AdGuardHome/AdGuardHome
 
-tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$1_linux_armv7.tar.gz"
+sudo tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$1_linux_armv7.tar.gz"
 
 cd ../
 
 echo clean for $1
 
-rm -rf AdGuardHome
+sudo rm -rf AdGuardHome
 
 go clean -modcache
 }
