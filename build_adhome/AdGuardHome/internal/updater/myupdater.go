@@ -4,6 +4,6 @@ import "strings"
 
 func (u *Updater) getDlURL(dlURL string) string {
 	split := strings.Split(dlURL, "/")
-	dlURL = "http://github.home.local/https://github.com/k930520/build/releases/download/adhome/" + strings.Replace(split[len(split)-1], "AdGuardHome", "AdGuardHome_"+u.channel, 1)
+	dlURL = "https://github.home.local/https://github.com/k930520/build/releases/download/adhome/" + strings.Replace(split[len(split)-1], "AdGuardHome", "AdGuardHome_"+u.channel, 1)
 	return dlURL
 }
