@@ -1,6 +1,6 @@
 BuildAdGuardHome() {
 
-sudo cp -r build_adhome/AdGuardHome AdGuardHome
+sudo cp -r build_adhome/AdGuardHome/* AdGuardHome
 
 sudo sed -i '/func (mgr *DefaultManager) onGetCertificate(\
 	chi *tls.ClientHelloInfo) (cert *tls.Certificate, err error,\
@@ -39,6 +39,8 @@ sudo sed -i '/type NetworkRule struct {/a\
 	ECS          string\
 	TransportOpt \*TransportOpt\
 	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
+	
+go mod tidy
 
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
