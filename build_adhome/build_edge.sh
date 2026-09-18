@@ -71,6 +71,13 @@ sudo sed -i '/"respgeo": setRespGeoOptionHandler,/a\
 	"transport": setTransportOptionHandler,\
 	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
+sudo sed -i '/func GetDNSBasicRule(rules \[\]\*NetworkRule) (basicRule \*NetworkRule) {/{n;d;n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/match.go
+
+sudo sed -i '/func GetDNSBasicRule(rules \[\]\*NetworkRule) (basicRule \*NetworkRule) {/a\
+	rules = removeBadfilterRules(rules)\
+	rules = myRemoveDNSRewriteRules(rules)\
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/match.go
+
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
 sudo upx -9 dist/AdGuardHome/AdGuardHome
