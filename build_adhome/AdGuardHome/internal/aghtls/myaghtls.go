@@ -39,7 +39,7 @@ func (mgr *DefaultManager) myOnGetCertificate(
 			serverName = mgr.extTLSConf.ServerName
 		}
 		if validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{mgr.tlsCert.Leaf}, serverName) != nil {
-			var sans []string
+			sans := []string{mgr.extTLSConf.ServerName}
 			sans = append(sans, mgr.tlsCert.Leaf.DNSNames...)
 			if !netutil.IsValidIPString(serverName) {
 				tldPlusOne, err := publicsuffix.EffectiveTLDPlusOne(serverName)
@@ -62,7 +62,6 @@ func (mgr *DefaultManager) myOnGetCertificate(
 }
 
 func (mgr *DefaultManager) generateServerCert(sans []string) error {
-	sans = append(sans, mgr.extTLSConf.ServerName)
 	template, leafKey, err := newCert(mgr.extTLSConf.ServerName, x509util.DefaultLeafTemplate, sans, 24*time.Hour)
 	if err != nil {
 		return err
