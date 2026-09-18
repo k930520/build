@@ -18,6 +18,10 @@ sudo sed -i '/type Server struct {/a\
 	Transport *transport.Transport\
 	' AdGuardHome/internal/dnsforward/dnsforward.go
 
+sudo sed -i '/"github.com/miekg/dns"/a\
+	"github.com/AdguardTeam/AdGuardHome/internal/transport"\
+	' AdGuardHome/internal/dnsforward/dnsforward.go
+
 sudo sed -i '/		s.processFilteringBeforeRequest,/c\		s.myProcessFilteringBeforeRequest,' AdGuardHome/internal/dnsforward/requesthandler.go
 
 sudo sed -i '/type Result struct {/a\
