@@ -31,7 +31,7 @@ jobs:
         uses: kevincobain2000/action-gobrew@v2.3
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           persist-credentials: false
@@ -43,7 +43,7 @@ jobs:
           bash build_adhome/build_edge.sh
           
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         with:
