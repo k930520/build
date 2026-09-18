@@ -73,23 +73,34 @@ func (mgr *DefaultManager) myOnGetCertificate(
 }
 
 func (mgr *DefaultManager) generateServerCert(sans []string) error {
+	interCert, interKey, err := generateIntermediate(strings.ReplaceAll(mgr.rootCert.Subject.CommonName, "Root", "Intermediate"), mgr.rootCert, mgr.rootKey.(crypto.Signer), 24*time.Hour*14)
 
 	template, leafKey, err := newCert(mgr.extTLSConf.ServerName, x509util.DefaultLeafTemplate, sans, 24*time.Hour)
 	if err != nil {
 		return err
 	}
-	leafCert, err := x509util.CreateCertificate(template, mgr.rootCert, leafKey.Public(), mgr.rootKey.(crypto.Signer))
+	leafCert, err := x509util.CreateCertificate(template, interCert, leafKey.Public(), interKey)
 	if err != nil {
 		return err
 	}
-
 	mgr.tlsCert = &tls.Certificate{
-		Certificate: [][]byte{leafCert.Raw},
+		Certificate: [][]byte{leafCert.Raw, interCert.Raw},
 		PrivateKey:  leafKey,
 		Leaf:        leafCert,
 	}
-
 	return nil
+}
+
+func generateIntermediate(commonName string, rootCrt *x509.Certificate, rootKey crypto.Signer, lifetime time.Duration) (*x509.Certificate, crypto.Signer, error) {
+	template, signer, err := newCert(commonName, x509util.DefaultIntermediateTemplate, []string{}, lifetime)
+	if err != nil {
+		return nil, nil, err
+	}
+	intermediate, err := x509util.CreateCertificate(template, rootCrt, signer.Public(), rootKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	return intermediate, signer, nil
 }
 
 func newCert(commonName, templateName string, sans []string, lifetime time.Duration) (cert *x509.Certificate, signer crypto.Signer, err error) {
