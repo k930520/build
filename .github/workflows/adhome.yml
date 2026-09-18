@@ -40,7 +40,7 @@ jobs:
       - name: Build
         run: |
           sudo apt-get update && sudo apt-get install -y git upx
-          bash build_adhome/build.sh
+          bash build_adhome/build_edge.sh
           
       - name: Release
         uses: softprops/action-gh-release@v2
