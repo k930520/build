@@ -22,6 +22,24 @@ sudo sed -i '/"github.com\/miekg\/dns"/a\
 	"github.com/AdguardTeam/AdGuardHome/internal/transport"\
 	' AdGuardHome/internal/dnsforward/dnsforward.go
 
+sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
+	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
+		resVal, err := s.dnsFilter.CheckHost(strings.TrimSuffix(host,"."), u, &filtering.Settings{FilteringEnabled: true})\
+		if err == nil {\
+			if filtering.Rewritten ==resVal.Reason && resVal.CanonName != "" && len(resVal.IPList) == 0 {\
+				host = dns.Fqdn(resVal.CanonName)\
+				break\
+			}\
+			if filtering.Rewritten ==resVal.Reason {\
+				addr = append(addr, resVal.IPList...)\
+			}\
+		}\
+	}\
+	if len(addr) > 0 {\
+		return addr, nil\
+	}\
+ ' AdGuardHome/internal/dnsforward/dnsforward.go
+
 sudo sed -i '/		s.processFilteringBeforeRequest,/c\		s.myProcessFilteringBeforeRequest,' AdGuardHome/internal/dnsforward/requesthandler.go
 
 sudo sed -i '/type Result struct {/a\
