@@ -38,7 +38,15 @@ func (mgr *DefaultManager) myOnGetCertificate(
 		if serverName == "" {
 			serverName = mgr.extTLSConf.ServerName
 		}
-		if validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{mgr.tlsCert.Leaf}, serverName) != nil {
+		certificates := []*x509.Certificate{mgr.tlsCert.Leaf}
+		for _, der := range mgr.tlsCert.Certificate[1:] {
+			certificate, err := x509.ParseCertificate(der)
+			if err != nil {
+				return nil, err
+			}
+			certificates = append(certificates, certificate)
+		}
+		if validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), certificates, serverName) != nil {
 			var sans []string
 			for _, address := range mgr.tlsCert.Leaf.IPAddresses {
 				sans = append(sans, address.String())
