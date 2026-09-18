@@ -52,15 +52,20 @@ sudo sed -i '/type NetworkRule struct {/a\
 	TransportOpt \*TransportOpt\
 	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
-make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
+sudo sed -i '/"respgeo": setRespGeoOptionHandler,/a\
+	"ecs":       setECSOptionHandler,\
+	"transport": setTransportOptionHandler,\
+	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
-sudo tar -czvf ../build/$1_static.tar.gz ./build/*
-sudo tar -czvf ../build/$1_internal.tar.gz ./internal/*
-sudo tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
+make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
 sudo upx -9 dist/AdGuardHome/AdGuardHome
 
 sudo tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$1_linux_armv7.tar.gz"
+
+sudo tar -czvf ../build/$1_static.tar.gz ./build/*
+sudo tar -czvf ../build/$1_internal.tar.gz ./internal/*
+sudo tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
 
 cd ../
 
