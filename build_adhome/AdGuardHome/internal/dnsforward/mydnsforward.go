@@ -135,9 +135,6 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 			}
 		}
 		if pctx.Res.Answer != nil {
-			if s.Transport == nil {
-				s.Transport = transport.NewTransport(s.baseLogger)
-			}
 			host := dctx.origQuestion.Name
 			if host == "" {
 				host = pctx.Res.Question[0].Name
