@@ -10,12 +10,22 @@ sudo sed -i '/GetCertificate:/ s/mgr\.onGetCertificate/mgr.myOnGetCertificate/g'
 
 sudo sed -i '/	err = validateCertificates(/c\	err = myValidateCertificates(' AdGuardHome/internal/aghtls/defaultmanager.go
 
-sudo sed -i '/type Server struct {/a\
-	Transport *transport.Transport\
-	' AdGuardHome/internal/dnsforward/dnsforward.go
-
 sudo sed -i '/"github.com\/miekg\/dns"/a\
 	"github.com/AdguardTeam/AdGuardHome/internal/transport"\
+	' AdGuardHome/internal/dnsforward/dnsforward.go
+
+sudo sed -i '/type Server struct {/a\
+	transport *transport.Transport\
+	' AdGuardHome/internal/dnsforward/dnsforward.go
+
+sudo sed -i '/	return s\.startLocked(ctx)/i\
+	if s.transport == nil {\
+		s.transport = transport.NewTransport(s.baseLogger)\
+	}\
+	' AdGuardHome/internal/dnsforward/dnsforward.go
+
+sudo sed -i '/	s\.dnsProxy = nil/a\
+	s.transport = nil\
 	' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
