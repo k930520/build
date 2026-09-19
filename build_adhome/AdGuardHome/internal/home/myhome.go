@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-
+	
+	"github.com/AdguardTeam/AdGuardHome/internal/transport"
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/AdguardTeam/golibs/netutil/httputil"
