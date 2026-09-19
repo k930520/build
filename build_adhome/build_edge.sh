@@ -76,6 +76,8 @@ sudo sed -i '/type NetworkRule struct {/a\
 	TransportOpt \*TransportOpt\
 	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
+sudo sed -i '/		!r.matchDNSType(req.DNSType),/c\		!r.myMatchDNSType(req.DNSType),' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
+
 sudo sed -i '/"respgeo": setRespGeoOptionHandler,/a\
 	"ecs":       setECSOptionHandler,\
 	"transport": setTransportOptionHandler,\
