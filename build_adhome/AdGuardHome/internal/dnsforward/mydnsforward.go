@@ -130,14 +130,14 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 			return nil
 		}
 		logger := l.With(slogutil.KeyPrefix, "test")
-		logger.Info("befor", dctx)
+		logger.Info("befor", dctx.result, pctx.Res)
 		if pctx.Res == nil && !dctx.result.IsFiltered {
 			rc := s.processUpstream(ctx, l, dctx)
 			for rc != resultCodeSuccess {
 				rc = s.processUpstream(ctx, l, dctx)
 			}
 		}
-		logger.Info("after", dctx)
+		logger.Info("after", dctx.result, pctx.Res)
 		if pctx.Res.Answer != nil {
 			host := dctx.origQuestion.Name
 			if host == "" {
@@ -192,6 +192,7 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 					pctx.Req.Question[0].Qtype = qtype
 				}
 			}
+			logger.Info(host, rule)
 			s.transport.SetMatchRule(host, rule)
 		}
 		addr, err := netip.ParseAddr(s.conf.TLSConf.ServerName)
