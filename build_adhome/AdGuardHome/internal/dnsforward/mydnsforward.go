@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/AdguardTeam/AdGuardHome/internal/transport"
+	"github.com/AdguardTeam/golibs/logutil/slogutil"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/miekg/dns"
 )
@@ -128,19 +129,22 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 		if dctx.result.TransportOpt.Mode == "direct" {
 			return nil
 		}
+		logger := l.With(slogutil.KeyPrefix, "test")
+		logger.Info("befor", dctx)
 		if pctx.Res == nil && !dctx.result.IsFiltered {
 			rc := s.processUpstream(ctx, l, dctx)
 			for rc != resultCodeSuccess {
 				rc = s.processUpstream(ctx, l, dctx)
 			}
 		}
+		logger.Info("after", dctx)
 		if pctx.Res.Answer != nil {
 			host := dctx.origQuestion.Name
 			if host == "" {
 				host = pctx.Res.Question[0].Name
 			}
 			host = strings.TrimSuffix(host, ".")
-			rule := s.Transport.GetMatchRule(host)
+			rule := s.transport.GetMatchRule(host)
 			if rule == nil {
 				rule = &transport.Rule{Domain: host}
 			}
@@ -188,7 +192,7 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 					pctx.Req.Question[0].Qtype = qtype
 				}
 			}
-			s.Transport.SetMatchRule(host, rule)
+			s.transport.SetMatchRule(host, rule)
 		}
 		addr, err := netip.ParseAddr(s.conf.TLSConf.ServerName)
 		if err != nil {
@@ -209,5 +213,5 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 			r.URL.Scheme = "https"
 		}
 	}
-	s.Transport.HandleRequest(w, r)
+	s.transport.HandleRequest(w, r)
 }
