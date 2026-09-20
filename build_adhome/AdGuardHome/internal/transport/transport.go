@@ -44,7 +44,7 @@ type Transport struct {
 }
 
 func (t *Transport) RoundTrip(r *http.Request) (resp *http.Response, err error) {
-	matchRule := t.GetMatchRule(r.Host)
+	matchRule := t.GetMatchRule(r.Host, true)
 	if matchRule == nil {
 		t.logger.ErrorContext(r.Context(), r.Host, slogutil.KeyError, fmt.Errorf("rule not found"))
 		return nil, fmt.Errorf("%q rule not found", r.Host)
@@ -65,12 +65,10 @@ func (t *Transport) RoundTrip(r *http.Request) (resp *http.Response, err error) 
 			resp, err = t.h3Transport.RoundTrip(r.Clone(r.Context()))
 			if err == nil {
 				matchRule.protocolSupport = ProtocolHTTP3
-				t.SetMatchRule(r.Host, matchRule)
 			} else {
 				resp, err = t.h2Transport.RoundTrip(r.Clone(r.Context()))
 				if err == nil {
 					matchRule.protocolSupport = ProtocolHTTP2HTTP1
-					t.SetMatchRule(r.Host, matchRule)
 				}
 			}
 		}
@@ -215,7 +213,7 @@ func (t *Transport) GetMatch(addr string, logger *slog.Logger) (string, uint16, 
 	if err != nil {
 		return "", 0, nil, err
 	}
-	matchRule := t.GetMatchRule(host)
+	matchRule := t.GetMatchRule(host, true)
 	if matchRule == nil {
 		return "", 0, nil, fmt.Errorf("%q rule not found", host)
 	}
@@ -223,33 +221,18 @@ func (t *Transport) GetMatch(addr string, logger *slog.Logger) (string, uint16, 
 	return host, port, matchRule, nil
 }
 
-func (t *Transport) GetMatchRule(host string) *Rule {
+func (t *Transport) GetMatchRule(host string, canNil bool) *Rule {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	rule, ok := t.rules[host]
-	if ok {
-		return &Rule{
-			Domain:       rule.Domain,
-			Mode:         rule.Mode,
-			Args:         rule.Args,
-			HasLookUpECH: rule.HasLookUpECH,
-			ECH:          rule.ECH,
-			IPv4:         rule.IPv4,
-			IPv6:         rule.IPv6,
+	_, ok := t.rules[host]
+	if !ok {
+		if canNil {
+			return nil
 		}
+		t.rules[host] = &Rule{Domain: host}
 	}
-	return nil
-}
-
-func (t *Transport) SetMatchRule(host string, r *Rule) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if len(t.rules) >= 512 {
-		t.rules = make(map[string]*Rule)
-	}
-	t.rules[host] = r
+	return t.rules[host]
 }
 
 func staggeredRace[T any](ctx context.Context, n int, attemptDelay time.Duration, dial func(ctx context.Context, idx int) (T, error), closeLoser func(T)) (T, error) {
