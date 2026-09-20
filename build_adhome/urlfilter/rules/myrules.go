@@ -21,12 +21,15 @@ func (r *NetworkRule) IsMatchDNSTypeRewrittenCNAME() (ok bool) {
 }
 
 func (r *NetworkRule) myMatchDNSType(rtype uint16) (allowed bool) {
-	if len(r.permittedDNSTypes) == 0 && len(r.restrictedDNSTypes) == 0 {
-		r.Whitelist = r.DNSRewrite == nil
-	} else {
-		r.Whitelist = !r.matchDNSType(rtype)
+	if r.TransportOpt != nil || r.ECS != "" {
+		if len(r.permittedDNSTypes) == 0 && len(r.restrictedDNSTypes) == 0 {
+			r.Whitelist = r.DNSRewrite == nil
+		} else {
+			r.Whitelist = !r.matchDNSType(rtype)
+		}
+		return true
 	}
-	return true
+	return r.matchDNSType(rtype)
 }
 
 func setECSOptionHandler(r *NetworkRule, value string) (err error) {
