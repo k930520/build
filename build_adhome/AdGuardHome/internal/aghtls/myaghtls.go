@@ -34,60 +34,55 @@ func (mgr *DefaultManager) myOnGetCertificate(
 	}
 
 	if mgr.rootCert.IsCA {
+		if mgr.certs == nil {
+			mgr.certs = make(map[string]*tls.Certificate)
+		}
 		serverName := chi.ServerName
 		if serverName == "" {
 			serverName = mgr.extTLSConf.ServerName
 		}
-		if validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{mgr.tlsCert.Leaf}, serverName) != nil {
-			sans := []string{mgr.extTLSConf.ServerName}
-			sans = append(sans, mgr.tlsCert.Leaf.DNSNames...)
-			if !netutil.IsValidIPString(serverName) {
-				tldPlusOne, err := publicsuffix.EffectiveTLDPlusOne(serverName)
-				if err != nil {
-					return nil, err
-				}
-				if tldPlusOne != serverName {
-					serverName = "*." + tldPlusOne
-				}
-				sans = append(sans, serverName)
-			}
-			err := mgr.generateServerCert(sans)
+		sans := []string{mgr.extTLSConf.ServerName}
+		if !netutil.IsValidIPString(serverName) {
+			tldPlusOne, err := publicsuffix.EffectiveTLDPlusOne(serverName)
 			if err != nil {
 				return nil, err
 			}
+			serverName = tldPlusOne
+			sans = append(sans, tldPlusOne)
+			sans = append(sans, "*."+tldPlusOne)
 		}
+		certificate, ok := mgr.certs[serverName]
+
+		return mgr.generateServerCert(serverName, sans, ok,certificate)
 	}
 
 	return mgr.tlsCert, nil
 }
 
-func (mgr *DefaultManager) generateServerCert(sans []string) error {
-	template, leafKey, err := newCert(mgr.extTLSConf.ServerName, x509util.DefaultLeafTemplate, sans, 24*time.Hour)
+func (mgr *DefaultManager) generateServerCert(serverName string, sans []string, ok bool, certificate *tls.Certificate) (*tls.Certificate, error) {
+	if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
+		return certificate, nil
+	}
+	template, leafKey, err := newCert(serverName, x509util.DefaultLeafTemplate, sans, 24*time.Hour)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	leafCert, err := x509util.CreateCertificate(template, mgr.rootCert, leafKey.Public(), mgr.rootKey.(crypto.Signer))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	mgr.tlsCert = &tls.Certificate{
+	tlsCert := &tls.Certificate{
 		Certificate: [][]byte{leafCert.Raw},
 		PrivateKey:  leafKey,
 		Leaf:        leafCert,
 	}
-	return nil
-}
-
-func generateIntermediate(commonName string, rootCrt *x509.Certificate, rootKey crypto.Signer, lifetime time.Duration) (*x509.Certificate, crypto.Signer, error) {
-	template, signer, err := newCert(commonName, x509util.DefaultIntermediateTemplate, []string{}, lifetime)
-	if err != nil {
-		return nil, nil, err
+	mgr.mu.Lock()
+	mgr.certs[serverName] = tlsCert
+	if serverName == mgr.extTLSConf.ServerName {
+		mgr.tlsCert = tlsCert
 	}
-	intermediate, err := x509util.CreateCertificate(template, rootCrt, signer.Public(), rootKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	return intermediate, signer, nil
+	mgr.mu.Unlock()
+	return tlsCert, nil
 }
 
 func newCert(commonName, templateName string, sans []string, lifetime time.Duration) (cert *x509.Certificate, signer crypto.Signer, err error) {
