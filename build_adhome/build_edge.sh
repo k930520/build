@@ -18,15 +18,8 @@ sudo sed -i '/type Server struct {/a\
 	transport *transport.Transport\
 	' AdGuardHome/internal/dnsforward/dnsforward.go
 
-sudo sed -i '/	return s\.startLocked(ctx)/i\
-	if s.transport == nil {\
-		s.transport = transport.NewTransport(s.baseLogger)\
-	}\
-	' AdGuardHome/internal/dnsforward/dnsforward.go
-
-sudo sed -i '/	s\.dnsProxy = nil/a\
-	s.transport = nil\
-	' AdGuardHome/internal/dnsforward/dnsforward.go
+sudo sed -i '/	s = &Server{/a\
+		transport:   transport.NewTransport(p.Logger),' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
 	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
