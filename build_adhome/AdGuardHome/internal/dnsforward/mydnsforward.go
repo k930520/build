@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"net/netip"
 	"strings"
+	"time"
 
-	"github.com/AdguardTeam/AdGuardHome/internal/transport"
-	"github.com/AdguardTeam/golibs/logutil/slogutil"
+	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
+	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/miekg/dns"
 )
@@ -49,18 +50,16 @@ func (s *Server) myProcessFilteringBeforeRequest(
 
 	if dctx.result.ReqECS != "" {
 		if ip, err := netutil.ParseIP(dctx.result.ReqECS); err == nil {
-			ipAddr, _ := netip.AddrFromSlice(ip)
-			if !netutil.IsSpecialPurpose(ipAddr) {
+			if ipAddr, _ := netip.AddrFromSlice(ip); !netutil.IsSpecialPurpose(ipAddr) {
 				dctx.proxyCtx.ReqECS = setReqECS(dctx.proxyCtx.Req, ip, 0)
 			}
 		}
 	}
 
 	if dctx.result.TransportOpt != nil {
-		if err = s.setTransport(ctx, l, dctx); err != nil {
-			dctx.err = err
-
-			return resultCodeError
+		err := s.setTransport(ctx, l, dctx)
+		if err != nil {
+			l.ErrorContext(ctx, "failed to set transport option", err)
 		}
 	}
 
@@ -129,75 +128,63 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 		if dctx.result.TransportOpt.Mode == "direct" {
 			return nil
 		}
-		logger := l.With(slogutil.KeyPrefix, "test")
-		logger.Info("befor", dctx.result, pctx.Res)
-		if pctx.Res == nil && !dctx.result.IsFiltered {
-			rc := s.processUpstream(ctx, l, dctx)
-			for rc != resultCodeSuccess {
-				rc = s.processUpstream(ctx, l, dctx)
-			}
-		}
-		logger.Info("after", dctx.result, pctx.Res)
-		if pctx.Res.Answer != nil {
-			host := dctx.origQuestion.Name
-			if host == "" {
-				host = pctx.Res.Question[0].Name
-			}
-			host = strings.TrimSuffix(host, ".")
-			rule := s.transport.GetMatchRule(host)
-			if rule == nil {
-				rule = &transport.Rule{Domain: host}
-			}
-			switch pctx.Res.Question[0].Qtype {
-			case dns.TypeA:
-				rule.IPv4 = make([]net.IP, 0)
-				for _, rr := range pctx.Res.Answer {
-					if a, ok := rr.(*dns.A); ok {
-						rule.IPv4 = append(rule.IPv4, a.A)
+		if pctx.Res == nil && !dctx.result.IsFiltered && (pctx.Req.Question[0].Qtype == dns.TypeA || pctx.Req.Question[0].Qtype == dns.TypeAAAA) {
+			if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
+				if pctx.Res != nil && pctx.Res.Answer != nil {
+					host := dctx.origQuestion.Name
+					if host == "" {
+						host = pctx.Res.Question[0].Name
 					}
-				}
-			case dns.TypeAAAA:
-				rule.IPv6 = make([]net.IP, 0)
-				for _, rr := range pctx.Res.Answer {
-					if aaaa, ok := rr.(*dns.AAAA); ok {
-						rule.IPv6 = append(rule.IPv6, aaaa.AAAA)
-					}
-				}
-			}
-			switch mode := dctx.result.TransportOpt.Mode; mode {
-			case "mitm", "migration", "proxy":
-				rule.Args = ""
-				rule.Mode, rule.Args = mode, dctx.result.TransportOpt.Args
-			default:
-				rule.Args = ""
-				rule.Mode = mode
-				if !rule.HasLookUpECH {
-					qtype := pctx.Req.Question[0].Qtype
-					pctx.Req.Question[0].Qtype = dns.TypeHTTPS
-					pctx.Res = nil
-					rc := s.processUpstream(ctx, l, dctx)
-					for rc != resultCodeSuccess {
-						rc = s.processUpstream(ctx, l, dctx)
-					}
-					rule.HasLookUpECH = true
-					for _, rr := range pctx.Res.Answer {
-						if https, ok := rr.(*dns.HTTPS); ok {
-							for _, opt := range https.Value {
-								if ech, ok := opt.(*dns.SVCBECHConfig); ok {
-									rule.ECH = ech.ECH
-								}
+					host = strings.TrimSuffix(host, ".")
+					rule := s.transport.GetMatchRule(host, false)
+					switch pctx.Res.Question[0].Qtype {
+					case dns.TypeA:
+						rule.IPv4 = make([]net.IP, 0)
+						for _, rr := range pctx.Res.Answer {
+							if a, ok := rr.(*dns.A); ok {
+								rule.IPv4 = append(rule.IPv4, a.A)
+							}
+						}
+					case dns.TypeAAAA:
+						rule.IPv6 = make([]net.IP, 0)
+						for _, rr := range pctx.Res.Answer {
+							if aaaa, ok := rr.(*dns.AAAA); ok {
+								rule.IPv6 = append(rule.IPv6, aaaa.AAAA)
 							}
 						}
 					}
-					pctx.Req.Question[0].Qtype = qtype
+					switch mode := dctx.result.TransportOpt.Mode; mode {
+					case "mitm", "migration", "proxy":
+						rule.Args = ""
+						rule.Mode, rule.Args = mode, dctx.result.TransportOpt.Args
+					default:
+						rule.Args = ""
+						rule.Mode = mode
+						if !rule.HasLookUpECH {
+							qtype := pctx.Req.Question[0].Qtype
+							pctx.Req.Question[0].Qtype = dns.TypeHTTPS
+							pctx.Res = nil
+							if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
+								rule.HasLookUpECH = true
+								for _, rr := range pctx.Res.Answer {
+									if https, ok := rr.(*dns.HTTPS); ok {
+										for _, opt := range https.Value {
+											if ech, ok := opt.(*dns.SVCBECHConfig); ok {
+												rule.ECH = ech.ECH
+											}
+										}
+									}
+								}
+							}
+							pctx.Req.Question[0].Qtype = qtype
+						}
+					}
+					l.Info(host, rule)
 				}
 			}
-			logger.Info(host, rule)
-			s.transport.SetMatchRule(host, rule)
 		}
 		addr, err := netip.ParseAddr(s.conf.TLSConf.ServerName)
 		if err != nil {
-			s.logger.ErrorContext(ctx, s.conf.TLSConf.ServerName, " is not an ip address", err)
 			return fmt.Errorf("%q is not an ip address %w", s.conf.TLSConf.ServerName, err)
 		}
 		pctx.Res = s.genResponseWithIPs(ctx, pctx.Req, []netip.Addr{addr})
@@ -206,6 +193,10 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 }
 
 func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
+	if matchRule := s.transport.GetMatchRule(r.Host, true); matchRule == nil {
+		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeA)
+		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeAAAA)
+	}
 	if r.URL.Host == "" {
 		r.URL.Host = r.Host
 	}
@@ -215,4 +206,20 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	s.transport.HandleRequest(w, r)
+}
+
+func (s *Server) lookupIPAddr(ctx context.Context, host, remoteAddr string, qtype uint16) {
+	addr, _ := netip.ParseAddrPort(remoteAddr)
+	dctx := &dnsContext{
+		proxyCtx: &proxy.DNSContext{
+			Proto: proxy.ProtoUDP,
+			Req:   (&dns.Msg{}).SetQuestion(dns.Fqdn(host), qtype),
+			Addr:  addr,
+		},
+		result:    &filtering.Result{},
+		startTime: time.Now(),
+	}
+	if s.processInitial(ctx, s.logger, dctx) == resultCodeSuccess {
+		s.myProcessFilteringBeforeRequest(ctx, s.logger, dctx)
+	}
 }
