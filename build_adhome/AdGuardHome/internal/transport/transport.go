@@ -138,7 +138,7 @@ func NewTransport(l *slog.Logger) *Transport {
 					Count:    3,
 				},
 			}
-			ips := append(matchRule.IPv4, matchRule.IPv6...)
+			ips := append(matchRule.IPv6,matchRule.IPv4...)
 			conn, err := staggeredRace(ctx, len(ips), 250*time.Millisecond,
 				func(rctx context.Context, idx int) (net.Conn, error) {
 					return dialer.DialContext(rctx, network, netutil.JoinHostPort(ips[idx].String(), port))
@@ -191,7 +191,7 @@ func NewTransport(l *slog.Logger) *Transport {
 			return nil, err
 		}
 		tlsCfg.EncryptedClientHelloConfigList = matchRule.ECH
-		ips := append(matchRule.IPv4, matchRule.IPv6...)
+		ips := append(matchRule.IPv6,matchRule.IPv4...)
 		conn, err := staggeredRace(ctx, len(ips), 250*time.Millisecond,
 			func(rctx context.Context, idx int) (*quic.Conn, error) {
 				return quic.DialAddrEarly(rctx, netutil.JoinHostPort(ips[idx].String(), port), tlsCfg, cfg)
