@@ -52,17 +52,16 @@ func (mgr *DefaultManager) myOnGetCertificate(
 			sans = append(sans, "*."+tldPlusOne)
 		}
 		certificate, ok := mgr.certs[serverName]
-
-		return mgr.generateServerCert(serverName, sans, ok,certificate)
+		if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
+			return certificate, nil
+		}
+		return mgr.generateServerCert(serverName, sans)
 	}
 
 	return mgr.tlsCert, nil
 }
 
-func (mgr *DefaultManager) generateServerCert(serverName string, sans []string, ok bool, certificate *tls.Certificate) (*tls.Certificate, error) {
-	if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
-		return certificate, nil
-	}
+func (mgr *DefaultManager) generateServerCert(serverName string, sans []string) (*tls.Certificate, error) {
 	template, leafKey, err := newCert(serverName, x509util.DefaultLeafTemplate, sans, 24*time.Hour)
 	if err != nil {
 		return nil, err
@@ -76,12 +75,10 @@ func (mgr *DefaultManager) generateServerCert(serverName string, sans []string, 
 		PrivateKey:  leafKey,
 		Leaf:        leafCert,
 	}
-	mgr.mu.Lock()
 	mgr.certs[serverName] = tlsCert
 	if serverName == mgr.extTLSConf.ServerName {
 		mgr.tlsCert = tlsCert
 	}
-	mgr.mu.Unlock()
 	return tlsCert, nil
 }
 
