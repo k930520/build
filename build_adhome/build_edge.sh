@@ -4,6 +4,7 @@ sudo cp -r build_adhome/AdGuardHome/* AdGuardHome
 
 sudo sed -i '/type DefaultManager struct {/a\
 	rootPair\
+	certs       map[string]*tls.Certificate\
 	' AdGuardHome/internal/aghtls/defaultmanager.go
 
 sudo sed -i '/GetCertificate:/ s/mgr\.onGetCertificate/mgr.myOnGetCertificate/g' AdGuardHome/internal/aghtls/defaultmanager.go
