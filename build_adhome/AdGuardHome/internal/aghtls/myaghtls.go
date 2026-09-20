@@ -18,7 +18,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-type CAPair struct {
+type rootPair struct {
 	rootCert *x509.Certificate
 	rootKey  crypto.PrivateKey
 }
