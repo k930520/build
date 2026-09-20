@@ -194,8 +194,13 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 
 func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	if matchRule := s.transport.GetMatchRule(r.Host, true); matchRule == nil {
-		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeA)
-		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeAAAA)
+		ch := make(chan resultCode)
+		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeA, ch)
+		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeAAAA, ch)
+		for range 2 {
+			rc := <-ch
+			s.logger.Info("resultCode", rc)
+		}
 	}
 	if r.URL.Host == "" {
 		r.URL.Host = r.Host
@@ -208,7 +213,7 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	s.transport.HandleRequest(w, r)
 }
 
-func (s *Server) lookupIPAddr(ctx context.Context, host, remoteAddr string, qtype uint16) {
+func (s *Server) lookupIPAddr(ctx context.Context, host, remoteAddr string, qtype uint16, ch chan resultCode) {
 	addr, _ := netip.ParseAddrPort(remoteAddr)
 	dctx := &dnsContext{
 		proxyCtx: &proxy.DNSContext{
@@ -219,7 +224,10 @@ func (s *Server) lookupIPAddr(ctx context.Context, host, remoteAddr string, qtyp
 		result:    &filtering.Result{},
 		startTime: time.Now(),
 	}
-	if s.processInitial(ctx, s.logger, dctx) == resultCodeSuccess {
-		s.myProcessFilteringBeforeRequest(ctx, s.logger, dctx)
+	if rc := s.processInitial(ctx, s.logger, dctx); rc == resultCodeSuccess {
+		ch <- s.myProcessFilteringBeforeRequest(ctx, s.logger, dctx)
+	} else {
+		ch <- rc
 	}
 }
+
