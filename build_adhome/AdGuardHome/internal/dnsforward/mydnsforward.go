@@ -11,9 +11,11 @@ import (
 	"time"
 
 	"github.com/AdguardTeam/AdGuardHome/internal/filtering"
+	"github.com/AdguardTeam/AdGuardHome/internal/transport"
 	"github.com/AdguardTeam/dnsproxy/proxy"
 	"github.com/AdguardTeam/golibs/netutil"
 	"github.com/miekg/dns"
+	"golang.org/x/exp/slices"
 )
 
 func (s *Server) myProcessFilteringBeforeRequest(
@@ -165,14 +167,20 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 							pctx.Req.Question[0].Qtype = dns.TypeHTTPS
 							pctx.Res = nil
 							if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
-								rule.HasLookUpECH = true
+								rule.HasLookUpHTTPS = true
 								for _, rr := range pctx.Res.Answer {
 									if https, ok := rr.(*dns.HTTPS); ok {
 										for _, opt := range https.Value {
+											if alpn, ok := opt.(*dns.SVCBAlpn); ok {
+												if slices.Contains(alpn.Alpn, "h3") {
+													rule.ProtocolSupport = transport.ProtocolHTTP3
+												}
+											}
 											if ech, ok := opt.(*dns.SVCBECHConfig); ok {
 												rule.ECH = ech.ECH
 											}
 										}
+										break
 									}
 								}
 							}
