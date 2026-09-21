@@ -5,7 +5,7 @@ sudo cp -r build_adhome/AdGuardHome/* AdGuardHome
 sudo sed -i '/type DefaultManager struct {/a\
 	rootPair\
 	certs       map[string]*tls.Certificate\
-	' AdGuardHome/internal/aghtls/defaultmanager.go
+' AdGuardHome/internal/aghtls/defaultmanager.go
 
 sudo sed -i '/GetCertificate:/ s/mgr\.onGetCertificate/mgr.myOnGetCertificate/g' AdGuardHome/internal/aghtls/defaultmanager.go
 
@@ -13,14 +13,15 @@ sudo sed -i '/	err = validateCertificates(/c\	err = myValidateCertificates(' AdG
 
 sudo sed -i '/"github.com\/miekg\/dns"/a\
 	"github.com/AdguardTeam/AdGuardHome/internal/transport"\
-	' AdGuardHome/internal/dnsforward/dnsforward.go
+' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/type Server struct {/a\
 	transport *transport.Transport\
-	' AdGuardHome/internal/dnsforward/dnsforward.go
+' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/	s = &Server{/a\
-		transport:   transport.NewTransport(p.Logger),' AdGuardHome/internal/dnsforward/dnsforward.go
+		transport:   transport.NewTransport(p.Logger),\
+' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
 	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
@@ -38,7 +39,7 @@ sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (
 	if len(addr) > 0 {\
 		return addr, nil\
 	}\
-	' AdGuardHome/internal/dnsforward/dnsforward.go
+' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/		s.processFilteringBeforeRequest,/c\		s.myProcessFilteringBeforeRequest,' AdGuardHome/internal/dnsforward/requesthandler.go
 
@@ -48,14 +49,14 @@ sudo sed -i '/		ans = s\.genAnswersWithIPv4s(ctx, req, ips)/a\
 				ans = append(ans, s.genAnswerA(req, ip))\
 			}\
 		}\
-		' AdGuardHome/internal/dnsforward/msg.go
+' AdGuardHome/internal/dnsforward/msg.go
 
 sudo sed -i '/		ans = s\.genAnswersWithIPv4s(ctx, req, ips)/{d;}' AdGuardHome/internal/dnsforward/msg.go
 
 sudo sed -i '/type Result struct {/a\
 	ReqECS       string\
 	TransportOpt \*rules.TransportOpt\
-	' AdGuardHome/internal/filtering/result.go
+' AdGuardHome/internal/filtering/result.go
 
 sudo sed -i '/	dnsRWRes := d.processDNSResultRewrites(dnsres, host)/c\	dnsRWRes := d.myProcessDNSResultRewrites(dnsres, host)' AdGuardHome/internal/filtering/filtering.go
 
@@ -78,14 +79,14 @@ sudo cp -r ../build_adhome/urlfilter/rules/* /home/runner/go/pkg/mod/github.com/
 sudo sed -i '/type NetworkRule struct {/a\
 	ECS          string\
 	TransportOpt \*TransportOpt\
-	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
 sudo sed -i '/		!r.matchDNSType(req.DNSType),/c\		!r.myMatchDNSType(req.DNSType),' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
 sudo sed -i '/"respgeo": setRespGeoOptionHandler,/a\
 	"ecs":       setECSOptionHandler,\
 	"transport": setTransportOptionHandler,\
-	' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
+' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/network.go
 
 sudo sed -i '/func GetDNSBasicRule(rules \[\]\*NetworkRule) (basicRule \*NetworkRule) {/{n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/match.go
 sudo sed -i '/func GetDNSBasicRule(rules \[\]\*NetworkRule) (basicRule \*NetworkRule) {/{n;d;}' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/match.go
