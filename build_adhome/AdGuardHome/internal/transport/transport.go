@@ -29,12 +29,13 @@ type Rule struct {
 	Domain          string
 	Mode            string
 	Args            string
-	HasLookUpECH    bool
+	HasLookUpHTTPS  bool
 	ECH             []byte
 	IPv4            []net.IP
 	IPv6            []net.IP
-	protocolSupport Protocol
+	ProtocolSupport Protocol
 }
+
 type Transport struct {
 	logger      *slog.Logger
 	mu          *sync.Mutex
@@ -56,19 +57,22 @@ func (t *Transport) RoundTrip(r *http.Request) (resp *http.Response, err error) 
 	case "quic":
 		return t.h3Transport.RoundTrip(r)
 	default:
-		switch matchRule.protocolSupport {
-		case ProtocolHTTP3:
-			resp, err = t.h3Transport.RoundTrip(r)
+		switch matchRule.ProtocolSupport {
 		case ProtocolHTTP2HTTP1:
 			resp, err = t.h2Transport.RoundTrip(r)
+		case ProtocolHTTP3:
+			resp, err = t.h3Transport.RoundTrip(r.Clone(r.Context()))
+			if err != nil {
+				resp, err = t.h2Transport.RoundTrip(r.Clone(r.Context()))
+			}
 		case ProtocolAuto:
 			resp, err = t.h3Transport.RoundTrip(r.Clone(r.Context()))
 			if err == nil {
-				matchRule.protocolSupport = ProtocolHTTP3
+				matchRule.ProtocolSupport = ProtocolHTTP3
 			} else {
 				resp, err = t.h2Transport.RoundTrip(r.Clone(r.Context()))
 				if err == nil {
-					matchRule.protocolSupport = ProtocolHTTP2HTTP1
+					matchRule.ProtocolSupport = ProtocolHTTP2HTTP1
 				}
 			}
 		}
