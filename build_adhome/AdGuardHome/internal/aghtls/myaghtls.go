@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/AdguardTeam/golibs/errors"
-	"github.com/AdguardTeam/golibs/netutil"
 	"go.step.sm/crypto/keyutil"
 	"go.step.sm/crypto/x509util"
 	"golang.org/x/net/publicsuffix"
