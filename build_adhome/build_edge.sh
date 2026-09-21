@@ -38,7 +38,7 @@ sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (
 	if len(addr) > 0 {\
 		return addr, nil\
 	}\
- ' AdGuardHome/internal/dnsforward/dnsforward.go
+	' AdGuardHome/internal/dnsforward/dnsforward.go
 
 sudo sed -i '/		s.processFilteringBeforeRequest,/c\		s.myProcessFilteringBeforeRequest,' AdGuardHome/internal/dnsforward/requesthandler.go
 
@@ -47,9 +47,10 @@ sudo sed -i '/		ans = s\.genAnswersWithIPv4s(ctx, req, ips)/a\
 			if ip.Is4() {\
 				ans = append(ans, s.genAnswerA(req, ip))\
 			}\
-		}\' AdGuardHome/internal/dnsforward/msg.go
+		}\
+		' AdGuardHome/internal/dnsforward/msg.go
 
-sudo sed -i '/		ans = s\.genAnswersWithIPv4s(ctx, req, ips)/{d;}\' AdGuardHome/internal/dnsforward/msg.go
+sudo sed -i '/		ans = s\.genAnswersWithIPv4s(ctx, req, ips)/{d;}' AdGuardHome/internal/dnsforward/msg.go
 
 sudo sed -i '/type Result struct {/a\
 	ReqECS       string\
