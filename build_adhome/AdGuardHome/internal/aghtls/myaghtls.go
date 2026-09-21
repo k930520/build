@@ -38,31 +38,32 @@ func (mgr *DefaultManager) myOnGetCertificate(
 			mgr.certs = make(map[string]*tls.Certificate)
 		}
 		serverName := chi.ServerName
+		var key string
 		if serverName == "" {
 			serverName = mgr.extTLSConf.ServerName
-		}
-		var sans []string
-		var key string
-		if !netutil.IsValidIPString(serverName) {
+			key = serverName
+		} else {
 			eTLD, ok := publicsuffix.PublicSuffix(serverName)
 			if ok {
 				eTLD, _ = publicsuffix.EffectiveTLDPlusOne(serverName)
 			}
-			_, tail, found := strings.Cut(serverName, ".")
-			for ; found && len(tail) > len(eTLD); _, tail, found = strings.Cut(tail, ".") {
-				sans = append(sans, "*."+tail)
-				sans = append(sans, tail)
-			}
 			key = eTLD
-			sans = append(sans, "*."+eTLD)
-			sans = append(sans, eTLD)
-		} else {
-			key = serverName
-			sans = append(sans, serverName)
 		}
 		certificate, ok := mgr.certs[key]
 		if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
 			return certificate, nil
+		}
+		var sans []string
+		if key == serverName {
+			sans = append(sans, serverName)
+		} else {
+			_, tail, found := strings.Cut(serverName, ".")
+			for ; found && len(tail) > len(key); _, tail, found = strings.Cut(tail, ".") {
+				sans = append(sans, "*."+tail)
+				sans = append(sans, tail)
+			}
+			sans = append(sans, "*."+key)
+			sans = append(sans, key)
 		}
 		return mgr.generateServerCert(key, sans)
 	}
