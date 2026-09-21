@@ -46,10 +46,12 @@ func (mgr *DefaultManager) myOnGetCertificate(
 		if !netutil.IsValidIPString(serverName) {
 			eTLD, ok := publicsuffix.PublicSuffix(serverName)
 			if ok {
-				eTLD, err = publicsuffix.EffectiveTLDPlusOne(serverName)
-				if err != nil {
-					return nil, err
-				}
+				eTLD, _ = publicsuffix.EffectiveTLDPlusOne(serverName)
+			}
+			_, tail, found := strings.Cut(serverName, ".")
+			for ; found && len(tail) > len(eTLD); _, tail, found = strings.Cut(tail, ".") {
+				sans = append(sans, "*."+tail)
+				sans = append(sans, tail)
 			}
 			key = eTLD
 			sans = append(sans, "*."+eTLD)
