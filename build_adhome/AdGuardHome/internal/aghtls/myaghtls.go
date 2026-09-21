@@ -62,7 +62,7 @@ func (mgr *DefaultManager) myOnGetCertificate(
 		if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
 			return certificate, nil
 		}
-		return mgr.generateServerCert(serverName, sans)
+		return mgr.generateServerCert(kry, sans)
 	}
 	return mgr.tlsCert, nil
 }
