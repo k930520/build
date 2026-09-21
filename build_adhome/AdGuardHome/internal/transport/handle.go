@@ -12,7 +12,7 @@ func (t *Transport) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	resp, err := t.RoundTrip(r)
 	if err != nil {
 		logger.ErrorContext(r.Context(), "transport roundtrip is failed", slogutil.KeyError, err)
-		http.Error(w, "transport roundtrip is failed", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer func(Body io.ReadCloser) {
