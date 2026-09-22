@@ -10,7 +10,7 @@ sudo sed -i '/type DefaultManager struct {/a\
 	aghaTLSOpt\
 ' AdGuardHome/internal/aghtls/defaultmanager.go
 
-sudo sed -i '	if conf\.ExtendedTLSConfig \!= nil {/i\
+sudo sed -i '	if conf\.ExtendedTLSConfig != nil {/i\
 	if conf.BindHosts != nil {\
 		mgr.bindHosts = conf.BindHosts\
 	}\
