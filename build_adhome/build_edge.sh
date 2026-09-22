@@ -19,6 +19,10 @@ sudo sed -i '	if conf\.ExtendedTLSConfig \!= nil {/i\
 	}\
 ' AdGuardHome/internal/aghtls/defaultmanager.go
 
+sudo sed -i '		restartHTTPS = true/i\
+		mgr.certs = make(map[string]*tls.Certificate)\
+' AdGuardHome/internal/aghtls/defaultmanager.go
+
 sudo sed -i '/GetCertificate:/ s/mgr\.onGetCertificate/mgr.myOnGetCertificate/g' AdGuardHome/internal/aghtls/defaultmanager.go
 
 sudo sed -i '/	err = validateCertificates(/c\	err = myValidateCertificates(' AdGuardHome/internal/aghtls/defaultmanager.go
