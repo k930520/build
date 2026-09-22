@@ -191,23 +191,30 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 				}
 			}
 		}
-		addr, err := netip.ParseAddr(s.conf.TLSConf.ServerName)
-		if err != nil {
-			return fmt.Errorf("%q is not an ip address %w", s.conf.TLSConf.ServerName, err)
+		var ips []netip.Addr
+		for _, addr := range s.conf.TLSConf.HTTPSListenAddrs {
+			ips = append(ips, addr.Addr())
 		}
-		pctx.Res = s.genResponseWithIPs(ctx, pctx.Req, []netip.Addr{addr})
+		pctx.Res = s.genResponseWithIPs(ctx, pctx.Req, ips)
 	}
 	return nil
 }
 
 func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	if matchRule := s.transport.GetMatchRule(r.Host, true); matchRule == nil {
-		ch := make(chan resultCode)
-		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeA, ch)
-		go s.lookupIPAddr(context.Background(), r.Host, r.RemoteAddr, dns.TypeAAAA, ch)
+		ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+		defer cancel()
+		ch := make(chan resultCode, 2)
+		go s.lookupIPAddr(ctx, r.Host, r.RemoteAddr, dns.TypeA, ch)
+		go s.lookupIPAddr(ctx, r.Host, r.RemoteAddr, dns.TypeAAAA, ch)
 		for range 2 {
-			rc := <-ch
-			s.logger.Info("resultCode", rc)
+			select {
+			case rc := <-ch:
+				s.logger.Info("resultCode", r.Host, rc)
+			case <-ctx.Done():
+				s.logger.Info("DNS lookup timeout", r.Host)
+				return
+			}
 		}
 	}
 	if r.URL.Host == "" {
