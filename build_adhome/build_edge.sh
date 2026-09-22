@@ -2,9 +2,21 @@ BuildAdGuardHome() {
 
 sudo cp -r build_adhome/AdGuardHome/* AdGuardHome
 
+sudo sed -i 'type DefaultManagerConfig struct {/a\
+	BindHosts []string\
+' AdGuardHome/internal/aghtls/defaultmanager.go
+
 sudo sed -i '/type DefaultManager struct {/a\
-	rootPair\
-	certs       map[string]*tls.Certificate\
+	aghaTLSOpt\
+' AdGuardHome/internal/aghtls/defaultmanager.go
+
+sudo sed -i '	if conf\.ExtendedTLSConfig \!= nil {/i\
+	if conf.BindHosts != nil {\
+		mgr.bindHosts = conf.BindHosts\
+	}\
+	if mgr.certs == nil {\
+		mgr.certs = make(map[string]*tls.Certificate)\
+	}\
 ' AdGuardHome/internal/aghtls/defaultmanager.go
 
 sudo sed -i '/GetCertificate:/ s/mgr\.onGetCertificate/mgr.myOnGetCertificate/g' AdGuardHome/internal/aghtls/defaultmanager.go
@@ -63,6 +75,17 @@ sudo sed -i '/	dnsRWRes := d.processDNSResultRewrites(dnsres, host)/c\	dnsRWRes 
 sudo sed -i '/	res = d.matchHostProcessDNSResult(rrtype, dnsres)/c\	res = d.myMatchHostProcessDNSResult(rrtype, dnsres)' AdGuardHome/internal/filtering/filtering.go
 
 sudo sed -i '/		shouldContinue := web.serveTLS(ctx)/c\		shouldContinue := web.myServeTLS(ctx)' AdGuardHome/internal/home/web.go
+
+sudo sed -i '/	tlsMgr, err = aghtls\.NewDefaultManager(ctx, &aghtls\.DefaultManagerConfig{/i\
+	var bindHosts []string\
+	for _, host := range config.DNS.BindHosts {\
+		bindHosts = append(bindHosts, host.String())\
+	}\
+' AdGuardHome/internal/home/web.go
+
+sudo sed -i '/	tlsMgr, err = aghtls\.NewDefaultManager(ctx, &aghtls\.DefaultManagerConfig{/a\
+		BindHosts:         bindHosts,\
+' AdGuardHome/internal/home/web.go
 
 sudo sed -i '/		return dlURL, key, true/c\		return u.getDlURL(dlURL), key, true' AdGuardHome/internal/updater/check.go
 
