@@ -10,7 +10,7 @@ sudo sed -i '/type DefaultManager struct {/a\
 	aghaTLSOpt\
 ' AdGuardHome/internal/aghtls/defaultmanager.go
 
-sudo sed -i '	mgr\.rootCerts = SystemRootCAs(ctx, conf\.Logger)/i\
+sudo sed -i '	mgr.rootCerts = SystemRootCAs(ctx, conf.Logger)/i\
 	if conf.BindHosts != nil {\
 		mgr.bindHosts = conf.BindHosts\
 	}\
@@ -80,14 +80,14 @@ sudo sed -i '/	res = d.matchHostProcessDNSResult(rrtype, dnsres)/c\	res = d.myMa
 
 sudo sed -i '/		shouldContinue := web.serveTLS(ctx)/c\		shouldContinue := web.myServeTLS(ctx)' AdGuardHome/internal/home/web.go
 
-sudo sed -i '/	tlsMgr, err = aghtls\.NewDefaultManager(ctx, &aghtls\.DefaultManagerConfig{/i\
+sudo sed -i '/	tlsMgr, err = aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{/i\
 	var bindHosts []string\
 	for _, host := range config.DNS.BindHosts {\
 		bindHosts = append(bindHosts, host.String())\
 	}\
 ' AdGuardHome/internal/home/web.go
 
-sudo sed -i '/	tlsMgr, err = aghtls\.NewDefaultManager(ctx, &aghtls\.DefaultManagerConfig{/a\
+sudo sed -i '/	tlsMgr, err = aghtls.NewDefaultManager(ctx, &aghtls.DefaultManagerConfig{/a\
 		BindHosts:         bindHosts,\
 ' AdGuardHome/internal/home/web.go
 
