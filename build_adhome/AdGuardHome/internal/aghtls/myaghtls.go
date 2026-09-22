@@ -17,9 +17,11 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-type rootPair struct {
-	rootCert *x509.Certificate
-	rootKey  crypto.PrivateKey
+type aghaTLSOpt struct {
+	bindHosts []string
+	rootCert  *x509.Certificate
+	rootKey   crypto.PrivateKey
+	certs     map[string]*tls.Certificate
 }
 
 func (mgr *DefaultManager) myOnGetCertificate(
@@ -33,13 +35,10 @@ func (mgr *DefaultManager) myOnGetCertificate(
 	}
 
 	if mgr.rootCert.IsCA {
-		if mgr.certs == nil {
-			mgr.certs = make(map[string]*tls.Certificate)
-		}
 		serverName := chi.ServerName
 		var key string
-		if serverName == "" {
-			serverName = mgr.extTLSConf.ServerName
+		if serverName == "" || serverName == mgr.extTLSConf.ServerName {
+			serverName = mgr.bindHosts[0]
 			key = serverName
 		} else {
 			eTLD, ok := publicsuffix.PublicSuffix(serverName)
@@ -50,22 +49,33 @@ func (mgr *DefaultManager) myOnGetCertificate(
 		}
 		certificate, ok := mgr.certs[key]
 		if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
+			if key == serverName {
+				mgr.tlsCert = certificate
+			}
 			return certificate, nil
 		}
 		var sans []string
 		if key == serverName {
-			sans = append(sans, serverName)
+			sans = append(sans, mgr.extTLSConf.ServerName)
+			sans = append(sans, mgr.bindHosts...)
 		} else {
 			_, tail, found := strings.Cut(serverName, ".")
-			for ; found && len(tail) > len(key); _, tail, found = strings.Cut(tail, ".") {
+			for ; found && len(tail) >= len(key); _, tail, found = strings.Cut(tail, ".") {
 				sans = append(sans, "*."+tail)
 				sans = append(sans, tail)
 			}
-			sans = append(sans, "*."+key)
-			sans = append(sans, key)
 		}
-		return mgr.generateServerCert(key, sans)
+		cert, err = mgr.generateServerCert(key, sans)
+		if err != nil {
+			return nil, err
+		}
+		mgr.certs[key] = cert
+		if key == serverName {
+			mgr.tlsCert = cert
+		}
+		return cert, err
 	}
+
 	return mgr.tlsCert, nil
 }
 
@@ -82,10 +92,6 @@ func (mgr *DefaultManager) generateServerCert(key string, sans []string) (*tls.C
 		Certificate: [][]byte{leafCert.Raw},
 		PrivateKey:  leafKey,
 		Leaf:        leafCert,
-	}
-	mgr.certs[key] = tlsCert
-	if key == mgr.extTLSConf.ServerName {
-		mgr.tlsCert = tlsCert
 	}
 	return tlsCert, nil
 }
@@ -245,3 +251,4 @@ func myValidatePKey(tlsManager Manager, pkey []byte) (keyType string, err error)
 
 	return keyType, nil
 }
+
