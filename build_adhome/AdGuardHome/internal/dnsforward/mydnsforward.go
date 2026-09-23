@@ -161,7 +161,7 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 					default:
 						rule.Args = ""
 						rule.Mode = mode
-						if !rule.HasLookUpHTTPS {
+						if !rule.HasLookUpHTTPS || rule.ECH != nil {
 							qtype := pctx.Req.Question[0].Qtype
 							pctx.Req.Question[0].Qtype = dns.TypeHTTPS
 							pctx.Res = nil
