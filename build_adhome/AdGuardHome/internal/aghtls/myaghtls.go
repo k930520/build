@@ -37,7 +37,7 @@ func (mgr *DefaultManager) myOnGetCertificate(
 	if mgr.rootCert.IsCA {
 		serverName := chi.ServerName
 		var key string
-		if serverName == "" || serverName == mgr.extTLSConf.ServerName {
+		if serverName == mgr.extTLSConf.ServerName {
 			serverName = mgr.bindHosts[0]
 			key = serverName
 		} else {
@@ -49,13 +49,13 @@ func (mgr *DefaultManager) myOnGetCertificate(
 		}
 		certificate, ok := mgr.certs[key]
 		if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
-			if key == serverName {
+			if key == mgr.bindHosts[0] {
 				mgr.tlsCert = certificate
 			}
 			return certificate, nil
 		}
 		var sans []string
-		if key == serverName {
+		if key == mgr.bindHosts[0] {
 			sans = append(sans, mgr.extTLSConf.ServerName)
 			sans = append(sans, mgr.bindHosts...)
 		} else {
