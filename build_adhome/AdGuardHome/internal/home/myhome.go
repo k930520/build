@@ -73,7 +73,7 @@ func (web *webAPI) myServeTLS(ctx context.Context) (next bool) {
 
 func (web *webAPI) myWrapMux(l *slog.Logger) (h http.Handler) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if netutil.IsValidIPString(r.Host) || r.Host == web.tlsManager.ExtendedTLSConfig().ServerName {
+		if r.Host == web.tlsManager.ExtendedTLSConfig().ServerName || !netutil.IsValidHostname(r.Host) {
 			h = web.wrapMux(l)
 		} else {
 			logMw := httputil.NewLogMiddleware(l, slog.LevelDebug)
