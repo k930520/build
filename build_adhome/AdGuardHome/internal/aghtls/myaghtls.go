@@ -60,10 +60,12 @@ func (mgr *DefaultManager) myOnGetCertificate(
 			sans = append(sans, mgr.bindHosts...)
 		} else {
 			_, tail, found := strings.Cut(serverName, ".")
-			for ; found && len(tail) >= len(key); _, tail, found = strings.Cut(tail, ".") {
+			for ; found && len(tail) > len(key); _, tail, found = strings.Cut(tail, ".") {
 				sans = append(sans, "*."+tail)
 				sans = append(sans, tail)
 			}
+			sans = append(sans, "*."+key)
+			sans = append(sans, key)
 		}
 		cert, err = mgr.generateServerCert(key, sans)
 		if err != nil {
