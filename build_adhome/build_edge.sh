@@ -1,7 +1,5 @@
 BuildAdGuardHome() {
 
-sudo rm -rf /home/runner/go
-
 sudo cp -r build_adhome/AdGuardHome/* AdGuardHome
 
 sudo sed -i '/type DefaultManagerConfig struct {/a\
@@ -104,6 +102,8 @@ urlfilter=$(ls /home/runner/go/pkg/mod/github.com/\!adguard\!team | grep urlfilt
 echo urlfilter is $urlfilter
 
 sudo cp -r ../build_adhome/urlfilter/rules/* /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules
+
+ls /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules
 
 sudo sed -i '/type NetworkRule struct {/a\
 	ECS          string\
