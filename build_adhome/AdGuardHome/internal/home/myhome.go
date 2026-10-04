@@ -82,3 +82,17 @@ func (web *webAPI) myWrapMux(l *slog.Logger) (h http.Handler) {
 		h.ServeHTTP(w, r)
 	})
 }
+
+func ipsToAddrPorts(ips []netip.Addr, port uint16) (addrs []netip.AddrPort) {
+	if ips == nil {
+		return nil
+	}
+
+	addrs = make([]netip.AddrPort, 0, len(ips))
+	for _, ip := range ips {
+		addrs = append(addrs, netip.AddrPortFrom(ip, port))
+	}
+
+	return addrs
+}
+
