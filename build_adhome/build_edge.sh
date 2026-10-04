@@ -144,6 +144,8 @@ go clean -cache -modcache
 
 mkdir build
 
+go clean -cache
+
 CHANNEL=(edge)
 for i in "${CHANNEL[@]}"; do
 	echo building for ${i}
