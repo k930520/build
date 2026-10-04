@@ -93,11 +93,10 @@ sudo sed -i '/		shouldContinue := web.serveTLS(ctx)/c\		shouldContinue := web.my
 
 sudo sed -i '/		dnsConf\.HTTPSListenAddrs = \[\]netip\.AddrPort{/{n;d;}' AdGuardHome/internal/home/dns.go
 sudo sed -i '/		dnsConf\.HTTPSListenAddrs = \[\]netip\.AddrPort{/{n;d;}' AdGuardHome/internal/home/dns.go
-sudo sed -i '/		dnsConf\.HTTPSListenAddrs = \[\]netip\.AddrPort{/{d;}' AdGuardHome/internal/home/dns.go
-
-sudo sed -i '/	if extTLSConf\.PortHTTPS != 0 {/a\
+sudo sed -i '/		dnsConf\.HTTPSListenAddrs = \[\]netip\.AddrPort{/a\
 		dnsConf.HTTPSListenAddrs = ipsToAddrPorts(addrs, extTLSConf.PortHTTPS)\
 ' AdGuardHome/internal/home/dns.go
+sudo sed -i '/		dnsConf\.HTTPSListenAddrs = \[\]netip\.AddrPort{/{d;}' AdGuardHome/internal/home/dns.go
 
 sudo sed -i '/		return dlURL, key, true/c\		return u.getDlURL(dlURL), key, true' AdGuardHome/internal/updater/check.go
 
