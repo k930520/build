@@ -123,6 +123,8 @@ sudo sed -i '/func GetDNSBasicRule(rules \[\]\*NetworkRule) (basicRule \*Network
 	rules = myRemoveDNSRewriteRules(rules)\
 ' /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/match.go
 
+go clean -cache
+
 make CHANNEL=$1 GOOS=linux GOARCH=arm GOARM=7 OUT=dist/AdGuardHome/AdGuardHome
 
 sudo upx -9 dist/AdGuardHome/AdGuardHome
@@ -139,12 +141,10 @@ echo clean for $1
 
 sudo rm -rf AdGuardHome
 
-go clean -cache -modcache
+go clean -modcache
 }
 
 mkdir build
-
-go clean -cache
 
 CHANNEL=(edge)
 for i in "${CHANNEL[@]}"; do
