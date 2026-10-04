@@ -1,5 +1,7 @@
 BuildAdGuardHome() {
 
+sudo rm -rf /home/runner/go
+
 sudo cp -r build_adhome/AdGuardHome/* AdGuardHome
 
 sudo sed -i '/type DefaultManagerConfig struct {/a\
