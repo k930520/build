@@ -103,8 +103,6 @@ echo urlfilter is $urlfilter
 
 sudo cp -r ../build_adhome/urlfilter/rules/* /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules
 
-go clean -cache
-
 sudo sed -i '/type NetworkRule struct {/a\
 	ECS          string\
 	TransportOpt \*TransportOpt\
@@ -132,8 +130,8 @@ sudo upx -9 dist/AdGuardHome/AdGuardHome
 sudo tar -C "dist" -c -f - "./AdGuardHome" | gzip -9 - > "../build/AdGuardHome_$1_linux_armv7.tar.gz"
 
 sudo tar -czvf ../build/$1_static.tar.gz build/*
-sudo tar -czvf ../build/$1_internal.tar.gz internal/*
-sudo tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
+#sudo tar -czvf ../build/$1_internal.tar.gz internal/*
+#sudo tar -czvf ../build/$1_urlfilter.tar.gz /home/runner/go/pkg/mod/github.com/\!adguard\!team/$urlfilter/rules/*
 
 cd ../
 
@@ -141,7 +139,7 @@ echo clean for $1
 
 sudo rm -rf AdGuardHome
 
-go clean -modcache
+go clean -cache -modcache
 }
 
 mkdir build
