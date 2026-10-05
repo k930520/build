@@ -48,7 +48,7 @@ func (mgr *DefaultManager) myOnGetCertificate(
 			key = eTLD
 		}
 		certificate, ok := mgr.certs[key]
-		if ok && validateCertChain(context.Background(), mgr.logger, mgr.RootCAs(), []*x509.Certificate{certificate.Leaf}, serverName) == nil {
+		if ok && !certificate.Leaf.NotAfter.Before(time.Now().UTC().Add(time.Hour*24)) {
 			if key == mgr.bindHosts[0] {
 				mgr.tlsCert = certificate
 			}
@@ -82,7 +82,7 @@ func (mgr *DefaultManager) myOnGetCertificate(
 }
 
 func (mgr *DefaultManager) generateServerCert(key string, sans []string) (*tls.Certificate, error) {
-	template, leafKey, err := newCert(key, x509util.DefaultLeafTemplate, sans, 24*time.Hour)
+	template, leafKey, err := newCert(key, x509util.DefaultLeafTemplate, sans, time.Hour*24*9)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func newCert(commonName, templateName string, sans []string, lifetime time.Durat
 		return nil, nil, err
 	}
 	cert = template.GetCertificate()
-	cert.NotBefore = time.Now().Truncate(time.Second)
+	cert.NotBefore = time.Now().UTC().Add(-time.Hour * 24)
 	cert.NotAfter = cert.NotBefore.Add(lifetime)
 	return cert, signer, nil
 }
