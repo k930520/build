@@ -2,10 +2,25 @@ package filtering
 
 import (
 	"slices"
+	"strings"
 
 	"github.com/AdguardTeam/urlfilter"
 	"github.com/AdguardTeam/urlfilter/rules"
 )
+
+func (d *DNSFilter) MyProcessRewrites(host string, qtype uint16) (res Result, err error) {
+	if host == "" {
+		return Result{}, nil
+	}
+	host = strings.ToLower(host)
+	if d.conf.RewritesEnabled {
+		res = d.processRewrites(host, qtype)
+		if res.Reason == Rewritten {
+			return res, nil
+		}
+	}
+	return Result{}, nil
+}
 
 func (d *DNSFilter) myProcessDNSResultRewrites(
 	dnsres *urlfilter.DNSResult,
