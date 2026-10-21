@@ -41,14 +41,15 @@ sudo sed -i '/	s = &Server{/a\
 
 sudo sed -i '/func (s \*Server) Resolve(ctx context.Context, net, host string) (addr \[\]netip.Addr, err error) {/a\
 	for _, u := range []uint16{dns.TypeA, dns.TypeAAAA} {\
-		resVal, err := s.dnsFilter.CheckHost(strings.TrimSuffix(host,"."), u, &filtering.Settings{FilteringEnabled: true})\
+		resVal, err := s.dnsFilter.MyProcessRewrites(strings.TrimSuffix(host, "."), u)\
 		if err == nil {\
-			if filtering.Rewritten ==resVal.Reason && resVal.CanonName != "" && len(resVal.IPList) == 0 {\
+			if resVal.CanonName != "" && len(resVal.IPList) == 0 {\
 				host = dns.Fqdn(resVal.CanonName)\
 				break\
 			}\
-			if filtering.Rewritten ==resVal.Reason {\
+			if len(resVal.IPList) > 0 {\
 				addr = append(addr, resVal.IPList...)\
+				break\
 			}\
 		}\
 	}\
