@@ -129,65 +129,84 @@ func (s *Server) setTransport(ctx context.Context, l *slog.Logger, dctx *dnsCont
 		if dctx.result.TransportOpt.Mode == "direct" {
 			return nil
 		}
-		if pctx.Res == nil && !dctx.result.IsFiltered && (pctx.Req.Question[0].Qtype == dns.TypeA || pctx.Req.Question[0].Qtype == dns.TypeAAAA) {
-			if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
-				if pctx.Res != nil && pctx.Res.Answer != nil {
-					host := dctx.origQuestion.Name
-					if host == "" {
-						host = pctx.Res.Question[0].Name
-					}
-					host = strings.TrimSuffix(host, ".")
-					rule := s.transport.GetMatchRule(host, false)
-					switch pctx.Res.Question[0].Qtype {
-					case dns.TypeA:
-						rule.IPv4 = make([]net.IP, 0)
-						for _, rr := range pctx.Res.Answer {
-							if a, ok := rr.(*dns.A); ok {
-								rule.IPv4 = append(rule.IPv4, a.A)
-							}
+		if pctx.Req.Question[0].Qtype == dns.TypeA || pctx.Req.Question[0].Qtype == dns.TypeAAAA {
+			if pctx.Res == nil && !dctx.result.IsFiltered {
+				if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
+					l.DebugContext(
+						ctx,
+						"processing upstream success",
+						"host", pctx.Res.Question[0].Name,
+						"question", pctx.Req.Question[0].Qtype,
+					)
+				}
+			}
+			if pctx.Res != nil && pctx.Res.Answer != nil {
+				host := dctx.origQuestion.Name
+				if host == "" {
+					host = pctx.Res.Question[0].Name
+				}
+				host = strings.TrimSuffix(host, ".")
+				rule := s.transport.GetMatchRule(host, false)
+				switch pctx.Res.Question[0].Qtype {
+				case dns.TypeA:
+					rule.IPv4 = make([]net.IP, 0)
+					for _, rr := range pctx.Res.Answer {
+						if a, ok := rr.(*dns.A); ok {
+							rule.IPv4 = append(rule.IPv4, a.A)
 						}
-					case dns.TypeAAAA:
-						rule.IPv6 = make([]net.IP, 0)
-						for _, rr := range pctx.Res.Answer {
-							if aaaa, ok := rr.(*dns.AAAA); ok {
-								rule.IPv6 = append(rule.IPv6, aaaa.AAAA)
-							}
+					}
+				case dns.TypeAAAA:
+					rule.IPv6 = make([]net.IP, 0)
+					for _, rr := range pctx.Res.Answer {
+						if aaaa, ok := rr.(*dns.AAAA); ok {
+							rule.IPv6 = append(rule.IPv6, aaaa.AAAA)
 						}
 					}
-					switch mode := dctx.result.TransportOpt.Mode; mode {
-					case "mitm", "migration", "proxy":
-						rule.Args = ""
-						rule.Mode, rule.Args = mode, dctx.result.TransportOpt.Args
-					default:
-						rule.Args = ""
-						rule.Mode = mode
-						if !rule.HasLookUpHTTPS || rule.ECH != nil {
-							qtype := pctx.Req.Question[0].Qtype
-							pctx.Req.Question[0].Qtype = dns.TypeHTTPS
-							pctx.Res = nil
-							if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
-								rule.HasLookUpHTTPS = true
-								for _, rr := range pctx.Res.Answer {
-									if https, ok := rr.(*dns.HTTPS); ok {
-										for _, opt := range https.Value {
-											if alpn, ok := opt.(*dns.SVCBAlpn); ok {
-												if slices.Contains(alpn.Alpn, "h3") {
-													rule.ProtocolSupport = transport.ProtocolHTTP3
-												}
-											}
-											if ech, ok := opt.(*dns.SVCBECHConfig); ok {
-												rule.ECH = ech.ECH
+				}
+				switch mode := dctx.result.TransportOpt.Mode; mode {
+				case "mitm", "migration", "proxy":
+					rule.Args = ""
+					rule.Mode, rule.Args = mode, dctx.result.TransportOpt.Args
+				default:
+					rule.Args = ""
+					rule.Mode = mode
+					if !rule.HasLookUpHTTPS || rule.ECH != nil {
+						qtype := pctx.Req.Question[0].Qtype
+						pctx.Req.Question[0].Qtype = dns.TypeHTTPS
+						pctx.Res = nil
+						if s.processUpstream(ctx, l, dctx) == resultCodeSuccess {
+							l.DebugContext(
+								ctx,
+								"processing upstream success",
+								"host", host,
+								"question", dns.TypeHTTPS,
+							)
+							rule.HasLookUpHTTPS = true
+							for _, rr := range pctx.Res.Answer {
+								if https, ok := rr.(*dns.HTTPS); ok {
+									for _, opt := range https.Value {
+										if alpn, ok := opt.(*dns.SVCBAlpn); ok {
+											if slices.Contains(alpn.Alpn, "h3") {
+												rule.ProtocolSupport = transport.ProtocolHTTP3
 											}
 										}
-										break
+										if ech, ok := opt.(*dns.SVCBECHConfig); ok {
+											rule.ECH = ech.ECH
+										}
 									}
+									break
 								}
 							}
-							pctx.Req.Question[0].Qtype = qtype
 						}
+						pctx.Req.Question[0].Qtype = qtype
 					}
-					l.Info(host, rule)
 				}
+				l.DebugContext(
+					ctx,
+					"rules for host",
+					"host", host,
+					"rules", rule,
+				)
 			}
 		}
 		var ips []netip.Addr
@@ -244,4 +263,3 @@ func (s *Server) lookupIPAddr(ctx context.Context, host, remoteAddr string, qtyp
 		ch <- rc
 	}
 }
-
